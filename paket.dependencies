@@ -6,5 +6,6 @@ nuget FSharp.Core
 nuget Giraffe
 nuget Microsoft.AspNetCore.App
 nuget Microsoft.NET.Test.Sdk
+nuget nsubstitute
 nuget xunit
 nuget xunit.runner.visualstudio

@@ -1,8 +1,24 @@
 module TableReservation.Infra.InAdapters.HttpRoutes
 
 open Giraffe
+open System
+open Microsoft.AspNetCore.Http
 
-let reservationRoute : HttpHandler = 
-    route "/table-reservation" >=> choose [
-        GET  >=> setStatusCode 200
+[<CLIMutable>]
+type TableReservationHttpDto =
+    {
+        RestaurantId : Guid
+        When : DateTime
+    }
+
+let createReservationHandler: HttpHandler = 
+    fun (next : HttpFunc) (ctx : HttpContext) ->
+         task {
+            let! reservation = ctx.BindJsonAsync<TableReservationHttpDto>()
+            return! Successful.CREATED reservation next ctx
+        }
+
+let reservationRoutes : HttpHandler = 
+    route "/table-reservations" >=> choose [
+        POST  >=> createReservationHandler
     ]
