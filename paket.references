@@ -1,0 +1,6 @@
+FSharp.Core
+xunit.runner.visualstudio
+Microsoft.NET.Test.Sdk
+xunit
+Microsoft.AspNetCore.App
+Giraffe
