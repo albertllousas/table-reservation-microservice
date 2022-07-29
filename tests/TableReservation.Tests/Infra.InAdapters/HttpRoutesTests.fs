@@ -16,15 +16,16 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
 open TableReservation.Tests.Fixtures
+open TableReservation.Tests
 
 [<Fact>]
 let ``Test route: POST "/table-reservations"`` () =
     task {
         let id = Guid.NewGuid()
-        let whenn = DateTime.Now
+        let when' = DateTime.Now
         let json = $"""{{"restaurantId":"{id}", "when":"2022-07-29T08:17:43.000013+02:00"}}"""
         // let json = { RestaurantId = id; When = whenn } 
-        use server = new TestServer(createHost())
+        use server = Fixtures.createTestServer HttpRoutes.reservationRoutes
         use client = server.CreateClient()
 
         let! response = post client "/table-reservations" json

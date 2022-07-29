@@ -32,16 +32,18 @@ let isJson (expected : string) (actual : string) =
     let actualJson = JToken.Parse(actual)
     actualJson.Should().BeEquivalentTo(expectedJson, "", "")
 
-let configureApp (app : IApplicationBuilder) =
-    app.UseGiraffe HttpRoutes.reservationRoutes
+let configureApp (routes: HttpHandler) (app : IApplicationBuilder) =
+    app.UseGiraffe routes
 
 let configureServices (services : IServiceCollection) =
     services
         .AddResponseCaching()
         .AddGiraffe() |> ignore
 
-let createHost() =
+let createHost (routes: HttpHandler) =
     WebHostBuilder()
         .UseContentRoot(Directory.GetCurrentDirectory())
-        .Configure(Action<IApplicationBuilder> configureApp)
+        .Configure(Action<IApplicationBuilder> (configureApp routes))
         .ConfigureServices(Action<IServiceCollection> configureServices)
+
+let createTestServer routes = new TestServer(createHost routes)
