@@ -36,6 +36,7 @@ let configureApp (routes: HttpHandler) (app : IApplicationBuilder) =
     app.UseGiraffe routes
 
 let configureServices (services : IServiceCollection) =
+    // dependencies |> List.iter (fun dep -> services.AddSingleton(dep) |> ignore) 
     services
         .AddResponseCaching()
         .AddGiraffe() |> ignore

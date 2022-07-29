@@ -7,3 +7,4 @@ Giraffe
 nsubstitute
 fluentassertions.json
 Microsoft.AspNetCore.TestHost
+FSharpx.Extras
