@@ -14,8 +14,8 @@
   </ItemGroup> -->
   <ItemGroup>
     <Compile Include="src/TableReservation/Infra.InAdapters/HttpRoutes.fs" />
+    <Compile Include="tests/TableReservation.Tests/Fixtures.fs" />
     <Compile Include="tests/TableReservation.Tests/Infra.InAdapters/HttpRoutesTests.fs" />
-    <!-- <Compile Include="tests/Suave.Tests.fs" /> -->
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

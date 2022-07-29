@@ -5,3 +5,5 @@ xunit
 Microsoft.AspNetCore.App
 Giraffe
 nsubstitute
+fluentassertions.json
+Microsoft.AspNetCore.TestHost
