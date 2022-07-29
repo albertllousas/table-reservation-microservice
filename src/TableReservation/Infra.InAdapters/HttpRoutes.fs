@@ -4,12 +4,8 @@ open Giraffe
 open System
 open Microsoft.AspNetCore.Http
 
-// [<CLIMutable>]
-type TableReservationHttpDto =
-    {
-        RestaurantId : Guid
-        When : DateTime
-    }
+[<CLIMutable>]
+type TableReservationHttpDto = { RestaurantId : Guid; When : DateTime }
 
 let createReservationHandler: HttpHandler = 
     fun (next : HttpFunc) (ctx : HttpContext) ->
