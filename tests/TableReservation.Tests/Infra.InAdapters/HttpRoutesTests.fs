@@ -26,8 +26,9 @@ let ``Test route: POST "/table-reservations"`` () =
         // let json = { RestaurantId = id; When = whenn } 
         use server = new TestServer(createHost())
         use client = server.CreateClient()
+
         let! response = post client "/table-reservations" json
-        response 
-            |> isStatus HttpStatusCode.Created
-            |> isJson json
+
+        let! content = response |> isStatus HttpStatusCode.Created |> readText
+        content |> isJson json |> ignore
     }

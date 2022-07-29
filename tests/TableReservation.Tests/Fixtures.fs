@@ -27,14 +27,10 @@ let post (client : HttpClient) (path : string) (json : string) =
 let readText (response : HttpResponseMessage) =
     response.Content.ReadAsStringAsync()
 
-let isJson (expected : string) (response : HttpResponseMessage) =
-   task {
-        let! jsonAsText = response.Content.ReadAsStringAsync()
-        let expectedJson = JToken.Parse(expected)
-        let actualJson = JToken.Parse(jsonAsText)
-        actualJson.Should().BeEquivalentTo(expectedJson, "", "")
-        response
-   }
+let isJson (expected : string) (actual : string) =
+    let expectedJson = JToken.Parse(expected)
+    let actualJson = JToken.Parse(actual)
+    actualJson.Should().BeEquivalentTo(expectedJson, "", "")
 
 let configureApp (app : IApplicationBuilder) =
     app.UseGiraffe HttpRoutes.reservationRoutes

@@ -4,7 +4,7 @@ open Giraffe
 open System
 open Microsoft.AspNetCore.Http
 
-[<CLIMutable>]
+// [<CLIMutable>]
 type TableReservationHttpDto =
     {
         RestaurantId : Guid
@@ -14,7 +14,7 @@ type TableReservationHttpDto =
 let createReservationHandler: HttpHandler = 
     fun (next : HttpFunc) (ctx : HttpContext) ->
          task {
-            let! reservation = ctx.BindJsonAsync<TableReservationHttpDto>()
+            let! reservation = ctx.BindModelAsync<TableReservationHttpDto>()
             return! Successful.CREATED reservation next ctx
         }
 
