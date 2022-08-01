@@ -1,12 +1,9 @@
-module TableReservation.Tests.Fixtures
+module Reservation.Tests.Fixtures
 
-open TableReservation.Infra.InAdapters
 open Xunit
 open System
 open System.IO
 open Giraffe
-open System.Threading.Tasks
-open FluentAssertions
 open FluentAssertions.Json
 open Newtonsoft.Json.Linq
 open System.Net

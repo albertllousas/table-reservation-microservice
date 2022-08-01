@@ -13,11 +13,11 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup> -->
   <ItemGroup>
-    <Compile Include="src/TableReservation/Domain.Model/Reservation.fs" />
-    <Compile Include="src/TableReservation/Domain.Model/Types.fs" />
-    <Compile Include="src/TableReservation/Infra.InAdapters/HttpRoutes.fs" />
-    <Compile Include="tests/TableReservation.Tests/Fixtures.fs" />
-    <Compile Include="tests/TableReservation.Tests/Infra.InAdapters/HttpRoutesTests.fs" />
+    <Compile Include="src/Reservation/Domain.Model.fs" />
+    <Compile Include="src/Reservation/Application.Services.fs" />
+    <Compile Include="src/Reservation/Infra.InputAdapters.fs" />
+    <Compile Include="tests/Reservation.Tests/Fixtures.fs" />
+    <Compile Include="tests/Reservation.Tests/Infra.InputAdapters.Tests.fs" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>
