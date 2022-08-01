@@ -13,6 +13,6 @@ module InputPorts =
 
     open DomainErrors
 
-    type MakeReservationRequest = { RestaurantId : Guid; When : DateTime }
+    type MakeReservationRequest = { RestaurantId : Guid; When : DateTime; Persons: int; Name: string }
 
     type MakeReservation = (MakeReservationRequest) -> Result<Reservation, DomainError>
