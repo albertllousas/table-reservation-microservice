@@ -4,8 +4,8 @@ module Reservation.Domain.Model
 open System
 
 type DomainError = 
-    | RestaurantNotFound
-    | DateNotOpenForReservationsYet
+    | TableNotFound
+    | TableAlreadyReserved
 
 type ReservationRequest = ReservationRequest of time : TimeOnly * persons : int * name: string
 
