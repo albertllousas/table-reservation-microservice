@@ -9,28 +9,22 @@ open Reservation.Tests.Fixtures
 open Reservation.Tests
 open Reservation.Infra.InputAdapters
 open Reservation.Domain.Model.InputPorts
-open Reservation.Domain.Model
 
 [<Fact>]
 let ``Test route: POST "/restaurant/{id}/reservations"`` () =
     task {
         let restaurantId = Guid.NewGuid()
+        let tableId = Guid.NewGuid() 
         let on = DateTime.Now
-        let json = $"""{{
-            "restaurantId":"{restaurantId}", 
-            "when":"{on.ToIsoString()}",
-            "numberOfDiners": 4,
-            "underTheName": "John Doe"
-            }}"""
-        let reservation: Reservation = { Ref="x342"; RestaurantId=restaurantId; When= on; Persons= 3; Name="John Doe" }
-        let makeReservation : MakeReservation = fun _ -> Ok reservation
-        use server = Fixtures.createTestServer (Http.reservationRoutes makeReservation)
+        let json = $"""{{ "restaurantId":"{restaurantId}", "when":"{on.ToIsoString()}", "people": 4, "name": "John Doe" }}"""
+        let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
+        use server = Fixtures.createTestServer (Http.reservationRoutes reserveTable)
         use client = server.CreateClient()
 
-        let! response = post client $"/restaurant/{restaurantId}/reservations" json
+        let! response = post client $"/tables/{tableId}/reservations" json
 
         let! content = response |> isStatus HttpStatusCode.Created |> readText
         content 
-            |> isJson $"""{{"ref":"x342", "restaurantId":"{restaurantId}", "when":"{on.ToIsoString()}", "persons": 3, "name": "John Doe"}}""" 
+            |> isJson $"""{{"ref":"x342", "tableId":"{tableId}"}}""" 
             |> ignore
     }

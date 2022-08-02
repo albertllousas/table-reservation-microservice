@@ -7,41 +7,44 @@ type DomainError =
     | RestaurantNotFound
     | DateNotOpenForReservationsYet
 
-type ReservationRequest = ReservationRequest of date : DateTime * persons : int * name: string
-
-type Reservation = {
-    Ref: String
-    RestaurantId : Guid
-    When : DateTime 
-    Name: string
-    Persons: int
-}
-
-// module Reservation =
-    // let create = ""
+type ReservationRequest = ReservationRequest of time : TimeOnly * persons : int * name: string
 
 type RestaurantId = RestaurantId of Guid
+    with member this.Value = this |> fun (RestaurantId v) -> v
 
-type ReservationsList = {
+type TableId = TableId of Guid
+    with member this.Value = this |> fun (TableId v) -> v
+
+type ReservationRef = ReservationRef of String
+    with member this.Value = this |> fun (ReservationRef v) -> v
+
+type Table = {
+    TableId: TableId
     RestaurantId : Guid
-    Date : DateOnly
+    Capacity: int
+    date : DateOnly
 }
 
-module ReservationsList =
+module Table =
 
-    type Accomodate = ReservationRequest -> ReservationsList -> Result<ValueTuple<Reservation, ReservationsList>, DomainError> 
+    let reserve (request: ReservationRequest)(table : Table) : ReservationRef * Table = raise (NotImplementedException())
 
-    let accomodate : Accomodate = raise (NotImplementedException())
+    //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
+
+    //let isAvailable 
 
 module InputPorts =
 
-    type MakeReservationRequest = { RestaurantId : Guid; When : DateTime; Persons: int; Name: string }
+    type ReserveTableRequest = { TableId : Guid; When : DateTime; Persons: int; Name: string }
 
-    type MakeReservation = (MakeReservationRequest) -> Result<Reservation, DomainError>
+    type ReserveTableResponse = { TableId: Guid; ReservationRef: String }
+
+    type ReserveTable = (ReserveTableRequest) -> Result<ReserveTableResponse, DomainError>
 
 module OutputPorts = 
 
-    type ReservationBook = 
-        abstract member FindBy : RestaurantId -> DateTime -> Result<ReservationsList, DomainError>  
-        abstract member Save : ReservationsList -> unit  
+    type TableRepository = 
+        abstract member FindAllBy : RestaurantId -> DateTime -> Result<Table list, DomainError>  
+        abstract member FindBy : TableId -> Result<Table, DomainError> 
+        abstract member Save : Table -> unit  
 

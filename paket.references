@@ -3,7 +3,7 @@ xunit.runner.visualstudio
 Microsoft.NET.Test.Sdk
 xunit
 Giraffe
-nsubstitute
 fluentassertions.json
 Microsoft.AspNetCore.TestHost
 FSharpx.Extras
+moq

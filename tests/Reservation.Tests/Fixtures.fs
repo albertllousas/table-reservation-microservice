@@ -13,6 +13,15 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
 
+type Consume<'t> =
+    abstract fn: 't -> unit
+
+type Function<'a, 'b> =
+    abstract fn: 'a -> 'b
+
+type Function2<'a, 'b, 'c> =
+    abstract fn: 'a -> 'b -> 'c -> 'd
+
 let isStatus (code : HttpStatusCode) (response : HttpResponseMessage) =
     Assert.Equal(code, response.StatusCode)
     response

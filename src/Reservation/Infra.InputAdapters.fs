@@ -9,25 +9,23 @@ open Microsoft.AspNetCore.Http
 module Http =
 
     [<CLIMutable>]
-    type ReservationHttpRequestDto = { When : DateTime; Name: string; Persons: int  }
+    type ReserveTableHttpRequestDto = { When : DateTime; Name: string; Persons: int  }
 
     [<CLIMutable>]
-    type ReservationHttpResponseDto = { Ref: String; RestaurantId: Guid; When : DateTime; Name: string; Persons: int }
+    type ReserveTableHttpResponseDto = { Ref: String; TableId: Guid;}
 
-    let asResponse (r : Reservation) : ReservationHttpResponseDto =  
-        { Ref = r.Ref; RestaurantId = r.RestaurantId; When = r.When; Persons = r.Persons; Name = r.Name}
-
-    let createReservationHandler (makeReservation : MakeReservation) (restaurantId:Guid) : HttpHandler = 
+    let reserveTableHandler (reserveTable : ReserveTable) (tableId:Guid) : HttpHandler = 
         fun (next : HttpFunc) (ctx : HttpContext) ->
             task {
-                let! dto = ctx.BindModelAsync<ReservationHttpRequestDto>()
-                let result = makeReservation { RestaurantId = restaurantId; When = dto.When; Name = dto.Name; Persons = dto.Persons}
+                let! dto = ctx.BindModelAsync<ReserveTableHttpRequestDto>()
+                let result = reserveTable { TableId = tableId; When = dto.When; Name = dto.Name; Persons = dto.Persons}
                 return! (match result with
-                        | Ok reservation -> asResponse reservation |> Successful.CREATED 
-                        | Error domainError -> RequestErrors.BAD_REQUEST "") next ctx
+                        | Ok r -> { Ref = r.ReservationRef; TableId = r.TableId } |> Successful.CREATED 
+                        | Error e -> RequestErrors.BAD_REQUEST "") next ctx
             }
 
-    let reservationRoutes (makeReservation : MakeReservation) : HttpHandler = 
+    let reservationRoutes reserveTable = 
         choose [
-            POST >=> routef "/restaurant/%O/reservations" (createReservationHandler makeReservation)
+            // GET >=> routef "/tables/available"
+            POST >=> routef "/tables/%O/reservations" (reserveTableHandler reserveTable)
         ]

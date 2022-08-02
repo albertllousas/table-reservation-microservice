@@ -8,6 +8,6 @@ nuget FSharpx.Extras
 nuget Giraffe
 nuget Microsoft.AspNetCore.TestHost
 nuget Microsoft.NET.Test.Sdk
-nuget nsubstitute
+nuget moq
 nuget xunit
 nuget xunit.runner.visualstudio
