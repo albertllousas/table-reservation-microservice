@@ -6,6 +6,6 @@ Giraffe
 fluentassertions.json
 Microsoft.AspNetCore.TestHost
 FSharpx.Extras
-moq
 Expecto
 YoloDev.Expecto.TestSdk
+foq

@@ -4,12 +4,12 @@ storage: none
 framework: net6.0, netstandard2.0, netstandard2.1
 nuget Expecto
 nuget fluentassertions.json
+nuget foq
 nuget FSharp.Core
 nuget FSharpx.Extras
 nuget Giraffe
 nuget Microsoft.AspNetCore.TestHost
 nuget Microsoft.NET.Test.Sdk
-nuget moq
 nuget xunit
 nuget xunit.runner.visualstudio
 nuget YoloDev.Expecto.TestSdk

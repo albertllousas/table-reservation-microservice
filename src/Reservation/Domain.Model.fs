@@ -7,7 +7,7 @@ type DomainError =
     | TableNotFound
     | TableAlreadyReserved
 
-type ReservationRequest = ReservationRequest of time : TimeOnly * persons : int * name: string
+type ReservationRequest = ReservationRequest of time : TimeOnly * persons : int * name: string * ref: string
 
 type RestaurantId = RestaurantId of Guid
     with member this.Value = this |> fun (RestaurantId v) -> v
@@ -22,12 +22,14 @@ type Table = {
     TableId: TableId
     RestaurantId : Guid
     Capacity: int
-    date : DateOnly
+    Date : DateOnly
 }
 
 module Table =
 
-    let reserve (request: ReservationRequest)(table : Table) : ReservationRef * Table = raise (NotImplementedException())
+    type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
+
+    let reserve : Reserve = raise (NotImplementedException())
 
     //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
 
@@ -43,8 +45,11 @@ module InputPorts =
 
 module OutputPorts = 
 
-    type TableRepository = 
-        abstract member FindAllBy : RestaurantId -> DateTime -> Result<Table list, DomainError>  
-        abstract member FindBy : TableId -> Result<Table, DomainError> 
-        abstract member Save : Table -> unit  
-
+  type TableRepository = 
+    abstract member FindAllBy : RestaurantId -> DateTime -> Result<Table list, DomainError>  
+    abstract member FindBy : TableId -> Result<Table, DomainError> 
+    abstract member Save : Table -> unit  
+    
+  type IdGenerator = 
+    abstract member Guid: unit -> Guid
+    abstract member Hash: unit -> string   

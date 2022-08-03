@@ -8,6 +8,7 @@
     <Compile Include="src/Reservation/Application.Services.fs" />
     <Compile Include="src/Reservation/Infra.InputAdapters.fs" />
     <Compile Include="tests/Reservation.Tests/Fixtures.fs" />
+    <Compile Include="tests/Reservation.Tests/Application.Services.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Infra.InputAdapters.Tests.fs" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />

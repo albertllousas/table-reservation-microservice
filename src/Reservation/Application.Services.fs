@@ -1,4 +1,4 @@
-module Reservation.Application.services
+module Reservation.Application.Services
 
 open FSharpx.Result
 open System
@@ -32,12 +32,12 @@ open Reservation.Domain.Model.OutputPorts
     // let availableTables = Table.filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
     // return availableTables     
 
-let reserveTable (tableRepository: TableRepository) : ReserveTable = 
+let reserveTable (tableRepository: TableRepository) (idGenerator: IdGenerator) (reserve: Table.Reserve): ReserveTable = 
     fun (req: ReserveTableRequest) -> 
         result {
             let! table = tableRepository.FindBy <| TableId(req.TableId)
-            let reservationRequest = ReservationRequest(TimeOnly.FromDateTime(req.When), req.Persons, req.Name)
-            let (ref, reservedTable) = Table.reserve reservationRequest table
+            let reservationRequest = ReservationRequest(TimeOnly.FromDateTime(req.When), req.Persons, req.Name, idGenerator.Hash())
+            let! (ref, reservedTable) = reserve reservationRequest table 
             tableRepository.Save reservedTable
             // publishEvent TableReservedEvent.from reservedTable ref
             return { TableId = table.TableId.Value; ReservationRef = ref.Value }
