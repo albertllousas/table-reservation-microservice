@@ -11,11 +11,11 @@ let private guid = Guid.NewGuid()
 
 let private tableId = TableId(Guid.NewGuid())
       
-let private when' = DateTime.UtcNow
+let private date = DateOnly.FromDateTime(DateTime.UtcNow)
 
-let private table: Table = { TableId = tableId; RestaurantId = Guid.NewGuid(); Capacity = 4; Date = DateOnly.FromDateTime(when') }
+let private table: Table = { TableId = tableId; RestaurantId = Guid.NewGuid(); Capacity = 4; Date = date }
 
-let private reservationRequest: InputPorts.ReserveTableRequest = { TableId = tableId.Value; When = when'; Persons = 3; Name = "John Doe" }
+let private reservationRequest: InputPorts.ReserveTableRequest = { TableId = tableId.Value; Date = date; Persons = 3; Name = "John Doe"; TimeSlot = "20:00" }
 
 let private idGenerator = {
     new OutputPorts.IdGenerator with 

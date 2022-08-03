@@ -36,7 +36,7 @@ let reserveTable (tableRepository: TableRepository) (idGenerator: IdGenerator) (
     fun (req: ReserveTableRequest) -> 
         result {
             let! table = tableRepository.FindBy <| TableId(req.TableId)
-            let reservationRequest = ReservationRequest(TimeOnly.FromDateTime(req.When), req.Persons, req.Name, idGenerator.Hash())
+            let reservationRequest = ReservationRequest(req.Persons, req.Name, idGenerator.Hash(), req.TimeSlot)
             let! (ref, reservedTable) = reserve reservationRequest table 
             tableRepository.Save reservedTable
             // publishEvent TableReservedEvent.from reservedTable ref

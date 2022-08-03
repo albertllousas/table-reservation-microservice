@@ -11,6 +11,14 @@ open Reservation.Domain.Model.InputPorts
 open Reservation.Domain.Model
 open Expecto
 
+let private restaurantId = Guid.NewGuid()
+
+let private tableId = Guid.NewGuid() 
+
+let private date = DateTime.Now.ToString("yyyy-MM-dd")
+
+let private json = $"""{{ "restaurantId":"{restaurantId}", "date":"{date}", "people": 4, "name": "John Doe", "timeSlot": "20:00" }}"""
+
 [<Tests>]
 let tests =
 
@@ -19,10 +27,7 @@ let tests =
     testList "Tests for route: POST '/restaurant/{id}/reservations'" [
 
       testTask "Should success posting a reservation for a table" {
-        let restaurantId = Guid.NewGuid()
-        let tableId = Guid.NewGuid() 
-        let on = DateTime.Now
-        let json = $"""{{ "restaurantId":"{restaurantId}", "when":"{on.ToIsoString()}", "people": 4, "name": "John Doe" }}"""
+        
         let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
         use server = Fixtures.createTestServer (Http.reservationRoutes reserveTable)
         use client = server.CreateClient()
@@ -41,7 +46,6 @@ let tests =
         ]
       for (error, code, payload) in expectations do 
         testTask $"Should fail posting a reservation for a table when reservation fails with {error}" {
-          let json = $"""{{ "restaurantId":"{Guid.NewGuid()}", "when":"{DateTime.Now.ToIsoString()}", "people": 4, "name": "John Doe" }}"""
           let reserveTable : ReserveTable = fun _ -> Error error
           use server = Fixtures.createTestServer (Http.reservationRoutes reserveTable)
           use client = server.CreateClient()
