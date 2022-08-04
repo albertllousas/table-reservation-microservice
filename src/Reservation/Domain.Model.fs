@@ -1,59 +1,83 @@
 module Reservation.Domain.Model
 
-// open FSharpx.Result
+open FSharpx.Result
 open System
 
 type DomainError = 
-    | TableNotFound
-    | TableAlreadyReserved
+  | TableNotFound
+  | NotAvailableTimeSlot
+  | TableAlreadyReserved
 
 type ReservationRequest = ReservationRequest of persons : int * name: string * ref: string* timeSlot: string
 
 type RestaurantId = RestaurantId of Guid
-    with member this.Value = this |> fun (RestaurantId v) -> v
+  with member this.Value = this |> fun (RestaurantId v) -> v
 
 type TableId = TableId of Guid
-    with member this.Value = this |> fun (TableId v) -> v
+  with member this.Value = this |> fun (TableId v) -> v
 
 type ReservationRef = ReservationRef of String
-    with member this.Value = this |> fun (ReservationRef v) -> v
+  with member this.Value = this |> fun (ReservationRef v) -> v
+
+type TimeSlot = TimeSlot of String
+
+module TimeSlot =
+
+  let create (_ : string): Result<TimeSlot, DomainError> = failwith "Not implemented yet"
 
 type Reservation = {
   ReservationRef: ReservationRef
   Persons: int
-  time: TimeOnly
+  TimeSlot: TimeSlot
+  Name: string
 }
 
-type TimeSlot = TimeSlot of String
-
 type Table = {
-    TableId: TableId
-    RestaurantId : Guid
-    Capacity: int
-    Date : DateOnly
-    // DailyReservations : Reservation list
-    // AvailableTimeSlots : TimeSlot list
+  TableId: TableId
+  RestaurantId : RestaurantId
+  Capacity: int
+  Date : DateOnly
+  DailyReservations : List<Reservation>
+  AvailableTimeSlots : TimeSlot list
 }
 
 module Table =
 
-    type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
+  let private remove (timeSlot: TimeSlot) (timeSlots: TimeSlot list) = List.filter (fun x -> x <> timeSlot ) timeSlots 
 
-    let reserve : Reserve = failwith "Not implemented"
-      // fun req table -> 
+  let private hasReservationFor timeslot table  = List.filter (fun r -> r.TimeSlot.Equals timeslot ) table.DailyReservations |> List.isEmpty |> not 
+
+  type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
+
+  let reserve : Reserve = fun req table -> 
+    result {
+      let (ReservationRequest (persons, name, ref, timeSlot)) = req
+      let! validTimeSlot = TimeSlot.create timeSlot 
+      let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; Name = name } 
+      let! tableWithNewReservation = 
+        if List.contains validTimeSlot table.AvailableTimeSlots 
+          then Ok { 
+            table with 
+              AvailableTimeSlots = remove validTimeSlot table.AvailableTimeSlots
+              DailyReservations = reservation :: table.DailyReservations
+            }
+        else if hasReservationFor validTimeSlot table then Error TableAlreadyReserved
+        else Error NotAvailableTimeSlot
+      return (reservation.ReservationRef, tableWithNewReservation)
+    } 
+    
         
-
     //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
 
     //let isAvailable 
 
 module InputPorts =
 
-    type ReserveTableRequest = { TableId : Guid; Date : DateOnly; Persons: int; Name: string; TimeSlot: string }
+  type ReserveTableRequest = { TableId : Guid; Date : DateOnly; Persons: int; Name: string; TimeSlot: string }
 
-    type ReserveTableResponse = { TableId: Guid; ReservationRef: String }
+  type ReserveTableResponse = { TableId: Guid; ReservationRef: String }
 
-    type ReserveTable = (ReserveTableRequest) -> Result<ReserveTableResponse, DomainError>
+  type ReserveTable = (ReserveTableRequest) -> Result<ReserveTableResponse, DomainError>
 
 module OutputPorts = 
 

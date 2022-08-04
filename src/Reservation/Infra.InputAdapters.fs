@@ -22,7 +22,7 @@ module Http =
         match error with
             | TableNotFound -> RequestErrors.NOT_FOUND { Details = "Table not found" }
             | TableAlreadyReserved -> RequestErrors.CONFLICT { Details = "Table already reserved" }
-                                              
+            | NotAvailableTimeSlot -> RequestErrors.NOT_FOUND { Details = "Time slot does not exists" }
 
     let reserveTableHandler (reserveTable : ReserveTable) (tableId:Guid) : HttpHandler = 
         fun (next : HttpFunc) (ctx : HttpContext) ->

@@ -4,7 +4,7 @@ open System
 open Giraffe
 open FSharp.Core
 open System.Net
-open Reservation.Tests.Fixtures
+open Reservation.Tests.Fixtures.Http
 open Reservation.Tests
 open Reservation.Infra.InputAdapters
 open Reservation.Domain.Model.InputPorts
@@ -29,7 +29,7 @@ let tests =
       testTask "Should success posting a reservation for a table" {
         
         let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
-        use server = Fixtures.createTestServer (Http.reservationRoutes reserveTable)
+        use server = createTestServer (Http.reservationRoutes reserveTable)
         use client = server.CreateClient()
 
         let! response = post client $"/tables/{tableId}/reservations" json
@@ -42,12 +42,13 @@ let tests =
 
       let expectations = [ 
         (TableNotFound, HttpStatusCode.NotFound,  """{ "details": "Table not found" }""")
+        (NotAvailableTimeSlot, HttpStatusCode.NotFound,  """{ "details": "Time slot does not exists" }""")
         (TableAlreadyReserved, HttpStatusCode.Conflict,  """{ "details": "Table already reserved" }""")
         ]
       for (error, code, payload) in expectations do 
         testTask $"Should fail posting a reservation for a table when reservation fails with {error}" {
           let reserveTable : ReserveTable = fun _ -> Error error
-          use server = Fixtures.createTestServer (Http.reservationRoutes reserveTable)
+          use server = createTestServer (Http.reservationRoutes reserveTable)
           use client = server.CreateClient()
 
           let! (response: Http.HttpResponseMessage) = post client $"/tables/{Guid.NewGuid()}/reservations" json

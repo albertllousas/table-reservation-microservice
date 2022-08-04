@@ -1,7 +1,6 @@
 module Reservation.Application.Services
 
 open FSharpx.Result
-open System
 open Reservation.Domain.Model
 open Reservation.Domain.Model.InputPorts
 open Reservation.Domain.Model.OutputPorts
