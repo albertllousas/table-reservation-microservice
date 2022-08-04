@@ -5,18 +5,6 @@ open Reservation.Domain.Model
 open Reservation.Domain.Model.InputPorts
 open Reservation.Domain.Model.OutputPorts
 
-// let makeReservation (reservationsBook : ReservationBook) (accomodate: Accomodate): MakeReservation = 
-//     fun request -> 
-//         result {
-//             let restaurantId = RestaurantId(request.RestaurantId)
-//             let! dailyReservationsList = reservationsBook.FindBy restaurantId request.When
-//             let reservationRequest = ReservationRequest(request.When, request.Persons, request.Name)
-//             let! (reservation, updated: ReservationsList) = accomodate reservationRequest dailyReservationsList
-//             reservationsBook.Save updated 
-//             // publishEvent ReservationCreatedEvent.from reservation      
-//             return reservation //with status confirmed
-//         }
-
 // let createTables (findRestaurant: FindRestaurant) (tableRepository: TableRepository) req =
 //     result {
 //         let restaurant = findRestaurant req.RestaurantId

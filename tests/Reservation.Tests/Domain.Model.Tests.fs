@@ -44,5 +44,22 @@ let tests =
 
         Assert.IsError result NotAvailableTimeSlot
       }
+
+      test "Should fail reserving a table when there the slot is not a valid one" {
+        let req = ReservationRequest(3, "Jane Doe", "x456t", "2:00")
+        
+        let result = Table.reserve req table
+
+        Assert.IsError result InvalidTimeSlot
+      }
+
+      test "Should fail reserving a table when there the persons are not fitting with the capacity" {
+        let req = ReservationRequest(2, "Jane Doe", "x456t", "20:00")
+        let table = tableBuilder |> capacity 6 |> dailySchedule schedule |> buildTable
+        
+        let result = Table.reserve req table
+
+        Assert.IsError result TableCapacityDoesNotFit
+      }
     ]
   ]

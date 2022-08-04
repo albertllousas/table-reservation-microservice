@@ -23,6 +23,8 @@ module Http =
             | TableNotFound -> RequestErrors.NOT_FOUND { Details = "Table not found" }
             | TableAlreadyReserved -> RequestErrors.CONFLICT { Details = "Table already reserved" }
             | NotAvailableTimeSlot -> RequestErrors.NOT_FOUND { Details = "Time slot does not exists" }
+            | InvalidTimeSlot-> RequestErrors.BAD_REQUEST { Details = "Invalid time slot" }
+            | TableCapacityDoesNotFit -> RequestErrors.BAD_REQUEST { Details = "Table capacity does not fit with reservation persons" }
 
     let reserveTableHandler (reserveTable : ReserveTable) (tableId:Guid) : HttpHandler = 
         fun (next : HttpFunc) (ctx : HttpContext) ->

@@ -2,11 +2,9 @@ module Reservation.Domain.Model
 
 open FSharpx.Result
 open System
+open System.Text.RegularExpressions
 
-type DomainError = 
-  | TableNotFound
-  | NotAvailableTimeSlot
-  | TableAlreadyReserved
+type DomainError = TableNotFound | NotAvailableTimeSlot | TableAlreadyReserved | InvalidTimeSlot | TableCapacityDoesNotFit
 
 type ReservationRequest = ReservationRequest of persons : int * name: string * ref: string* timeSlot: string
 
@@ -23,7 +21,9 @@ type TimeSlot = TimeSlot of String
 
 module TimeSlot =
 
-  let create (slot : string): Result<TimeSlot, DomainError> = Ok (TimeSlot(slot)) // TODO
+  let create (slot : string): Result<TimeSlot, DomainError> = 
+    if Regex.IsMatch( slot, "^([01][0-9]|2[0-3]):([0-5][0-9])$" ) then Ok (TimeSlot(slot))
+    else Error InvalidTimeSlot
 
 type Reservation = {
   ReservationRef: ReservationRef
@@ -42,26 +42,26 @@ type Table = {
 
 module Table =
 
-  // let private remove (timeSlot: TimeSlot) (timeSlots: TimeSlot list) = List.filter (fun x -> x <> timeSlot ) timeSlots 
-
-  // let private hasReservationFor timeslot table  = List.filter (fun r -> r.TimeSlot.Equals timeslot ) table.DailyReservations |> List.isEmpty |> not 
-
   type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
 
-  let private checkAvailability (reservation: Reservation) (table: Table) : Result<unit, DomainError> = 
+  let private checkAvailability reservation table : Result<unit, DomainError> = 
     if(not (Map.containsKey reservation.TimeSlot table.DailySchedule)) then Error NotAvailableTimeSlot
     else if(Option.isSome (Map.find reservation.TimeSlot table.DailySchedule)) then Error TableAlreadyReserved
     else Ok ()
 
+  let checkCapacity persons table = 
+    if (table.Capacity >= persons && table.Capacity < persons + 2 ) then Ok () 
+    else Error TableCapacityDoesNotFit
+  
   let reserve : Reserve = fun req table -> 
      result {
       let (ReservationRequest (persons, name, ref, timeSlot)) = req
       let! validTimeSlot = TimeSlot.create timeSlot 
       let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; Name = name }
       do! checkAvailability reservation table
+      do! checkCapacity persons table
       let newTable =  { table with DailySchedule = Map.add validTimeSlot (Some reservation) table.DailySchedule }
       return (reservation.ReservationRef, newTable)
-      // check capacity of the table
     } 
 
 module InputPorts =

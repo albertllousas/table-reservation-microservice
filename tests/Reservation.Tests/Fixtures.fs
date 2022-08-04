@@ -93,7 +93,7 @@ module Builders =
       {
         TableId = (Guid.NewGuid(), builder.TableId) ||> Option.defaultValue |> (fun id -> TableId(id))
         RestaurantId = (Guid.NewGuid(), builder.RestaurantId) ||> Option.defaultValue |> (fun id -> RestaurantId(id))
-        Capacity = (2, builder.Capacity) ||> Option.defaultValue 
+        Capacity = (4, builder.Capacity) ||> Option.defaultValue 
         Date = (DateOnly.FromDateTime DateTime.Now, builder.Date) ||> Option.defaultValue 
         DailySchedule = (Map.empty, builder.DailySchedule) ||> Option.defaultValue 
       }
