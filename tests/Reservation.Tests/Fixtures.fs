@@ -2,6 +2,7 @@ module Reservation.Tests.Fixtures
 
 open Xunit
 open System
+open Expecto
 open System.IO
 open Giraffe
 open FluentAssertions.Json
@@ -13,6 +14,7 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
 open Reservation.Domain.Model
+open System.Runtime.CompilerServices
 
 module Http = 
 
@@ -48,6 +50,19 @@ module Http =
           .ConfigureServices(Action<IServiceCollection> configureServices)
 
   let createTestServer routes = new TestServer(createHost routes)
+
+
+module Assert =
+
+  let IsOk (actual: Result<'a,'b>) (expected: 'a) = 
+    match actual with
+      | Ok r -> Expect.equal r  expected ""
+      | Error e -> Expect.isTrue false $"Expected Ok {expected} but got Error {e}"
+  
+  let IsError (actual: Result<'a,'b>) (expected: 'b) =
+    match actual with
+      | Ok r -> Expect.isTrue false $"Expected Error {expected} but got Ok {r}" // Assert.True(false, $"Expected Error {expected} but got Ok {r}") 
+      | Error e -> Expect.equal e  expected ""
 
 module Builders = 
 

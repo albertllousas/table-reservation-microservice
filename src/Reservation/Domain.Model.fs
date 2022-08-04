@@ -48,7 +48,10 @@ module Table =
 
   type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
 
-  let private checkAvailability (reservation: Reservation) (table: Table) : Result<unit, DomainError> = Ok () 
+  let private checkAvailability (reservation: Reservation) (table: Table) : Result<unit, DomainError> = 
+    if(not (Map.containsKey reservation.TimeSlot table.DailySchedule)) then Error NotAvailableTimeSlot
+    else if(Option.isSome (Map.find reservation.TimeSlot table.DailySchedule)) then Error TableAlreadyReserved
+    else Ok ()
 
   let reserve : Reserve = fun req table -> 
      result {
@@ -60,8 +63,6 @@ module Table =
       return (reservation.ReservationRef, newTable)
       // check capacity of the table
     } 
-
-    //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
 
 module InputPorts =
 
