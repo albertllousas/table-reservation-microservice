@@ -23,7 +23,7 @@ type TimeSlot = TimeSlot of String
 
 module TimeSlot =
 
-  let create (_ : string): Result<TimeSlot, DomainError> = failwith "Not implemented yet"
+  let create (slot : string): Result<TimeSlot, DomainError> = Ok (TimeSlot(slot)) // TODO
 
 type Reservation = {
   ReservationRef: ReservationRef
@@ -37,39 +37,31 @@ type Table = {
   RestaurantId : RestaurantId
   Capacity: int
   Date : DateOnly
-  DailyReservations : List<Reservation>
-  AvailableTimeSlots : TimeSlot list
+  DailySchedule : Map<TimeSlot, Reservation option>
 }
 
 module Table =
 
-  let private remove (timeSlot: TimeSlot) (timeSlots: TimeSlot list) = List.filter (fun x -> x <> timeSlot ) timeSlots 
+  // let private remove (timeSlot: TimeSlot) (timeSlots: TimeSlot list) = List.filter (fun x -> x <> timeSlot ) timeSlots 
 
-  let private hasReservationFor timeslot table  = List.filter (fun r -> r.TimeSlot.Equals timeslot ) table.DailyReservations |> List.isEmpty |> not 
+  // let private hasReservationFor timeslot table  = List.filter (fun r -> r.TimeSlot.Equals timeslot ) table.DailyReservations |> List.isEmpty |> not 
 
   type Reserve = ReservationRequest -> Table ->  Result<ReservationRef * Table, DomainError>
 
+  let private checkAvailability (reservation: Reservation) (table: Table) : Result<unit, DomainError> = Ok () 
+
   let reserve : Reserve = fun req table -> 
-    result {
+     result {
       let (ReservationRequest (persons, name, ref, timeSlot)) = req
       let! validTimeSlot = TimeSlot.create timeSlot 
-      let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; Name = name } 
-      let! tableWithNewReservation = 
-        if List.contains validTimeSlot table.AvailableTimeSlots 
-          then Ok { 
-            table with 
-              AvailableTimeSlots = remove validTimeSlot table.AvailableTimeSlots
-              DailyReservations = reservation :: table.DailyReservations
-            }
-        else if hasReservationFor validTimeSlot table then Error TableAlreadyReserved
-        else Error NotAvailableTimeSlot
-      return (reservation.ReservationRef, tableWithNewReservation)
+      let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; Name = name }
+      do! checkAvailability reservation table
+      let newTable =  { table with DailySchedule = Map.add validTimeSlot (Some reservation) table.DailySchedule }
+      return (reservation.ReservationRef, newTable)
+      // check capacity of the table
     } 
-    
-        
-    //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
 
-    //let isAvailable 
+    //let filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
 
 module InputPorts =
 
@@ -88,4 +80,4 @@ module OutputPorts =
     
   type IdGenerator = 
     abstract member Guid: unit -> Guid
-    abstract member Hash: unit -> string   
+    abstract member RandomString: size : int -> string   

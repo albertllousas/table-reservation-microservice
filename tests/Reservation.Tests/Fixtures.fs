@@ -58,11 +58,10 @@ module Builders =
       RestaurantId : Guid option
       Capacity: int option
       Date : DateOnly option
-      DailyReservations : Reservation list option
-      AvailableTimeSlots : TimeSlot list option
+      DailySchedule : Map<TimeSlot, Reservation option> option
       }
 
-    let tableBuilder: Builder = { TableId= None; RestaurantId= None; Capacity= None; Date= None; DailyReservations= None; AvailableTimeSlots= None; }
+    let tableBuilder: Builder = { TableId= None; RestaurantId= None; Capacity= None; Date= None; DailySchedule= None; }
 
     let tableId (id: Guid) (builder: Builder) : Builder = { builder with TableId= Some id }
 
@@ -72,9 +71,8 @@ module Builders =
 
     let date (value: DateOnly) (builder: Builder) : Builder = { builder with Date= Some value }
 
-    let dailyReservations (list: Reservation list) (builder: Builder) : Builder = { builder with DailyReservations= Some list }
+    let dailySchedule (map: Map<TimeSlot, Reservation option>) (builder: Builder) : Builder = { builder with DailySchedule= Some map }
 
-    let availableTimeSlots (list: TimeSlot list) (builder: Builder) : Builder = { builder with AvailableTimeSlots= Some list }
 
     let buildTable (builder: Builder) : Table = 
       {
@@ -82,6 +80,5 @@ module Builders =
         RestaurantId = (Guid.NewGuid(), builder.RestaurantId) ||> Option.defaultValue |> (fun id -> RestaurantId(id))
         Capacity = (2, builder.Capacity) ||> Option.defaultValue 
         Date = (DateOnly.FromDateTime DateTime.Now, builder.Date) ||> Option.defaultValue 
-        DailyReservations = (List.empty, builder.DailyReservations) ||> Option.defaultValue 
-        AvailableTimeSlots = (List.empty, builder.AvailableTimeSlots) ||> Option.defaultValue 
+        DailySchedule = (Map.empty, builder.DailySchedule) ||> Option.defaultValue 
       }

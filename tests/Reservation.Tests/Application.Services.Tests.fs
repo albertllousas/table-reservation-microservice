@@ -16,7 +16,7 @@ let private reservationRequest: InputPorts.ReserveTableRequest = { TableId = tab
 
 let private idGenerator = {
     new OutputPorts.IdGenerator with 
-      member _.Hash() = "hash"
+      member _.RandomString(_: int) = "hash"
       member _.Guid() = guid
   }
 
