@@ -49,7 +49,7 @@ module Table =
     else if(Option.isSome (Map.find reservation.TimeSlot table.DailySchedule)) then Error TableAlreadyReserved
     else Ok ()
 
-  let checkCapacity persons table = 
+  let private checkCapacity persons table = 
     if (table.Capacity >= persons && table.Capacity < persons + 2 ) then Ok () 
     else Error TableCapacityDoesNotFit
   
