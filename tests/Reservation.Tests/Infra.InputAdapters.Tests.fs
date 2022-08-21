@@ -1,4 +1,4 @@
-module Reservation.Infra.InAdapters.HttpRoutesTests
+module Reservation.Infra.InputAdaptersTests
 
 open System
 open FSharp.Core

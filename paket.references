@@ -9,3 +9,6 @@ FSharpx.Extras
 Expecto
 YoloDev.Expecto.TestSdk
 foq
+Npgsql.FSharp
+Ductus.FluentDocker
+Evolve

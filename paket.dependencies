@@ -2,6 +2,8 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 framework: net6.0, netstandard2.0, netstandard2.1
+nuget Ductus.FluentDocker
+nuget Evolve
 nuget Expecto
 nuget fluentassertions.json
 nuget foq
@@ -10,6 +12,7 @@ nuget FSharpx.Extras
 nuget Giraffe
 nuget Microsoft.AspNetCore.TestHost
 nuget Microsoft.NET.Test.Sdk
+nuget Npgsql.FSharp
 nuget xunit
 nuget xunit.runner.visualstudio
 nuget YoloDev.Expecto.TestSdk
