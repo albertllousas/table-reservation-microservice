@@ -12,3 +12,4 @@ foq
 Npgsql.FSharp
 Ductus.FluentDocker
 Evolve
+FSharp.Json

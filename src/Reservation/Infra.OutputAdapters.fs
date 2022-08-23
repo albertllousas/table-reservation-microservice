@@ -4,18 +4,22 @@ open Reservation.Domain.Model.OutputPorts
 open System
 open Reservation.Domain.Model
 open Npgsql.FSharp
+open FSharp.Json
 
 module DB =
 
   type PostgresqlTableRepository(connectionString: string) =
     
-    let mapToTable (row: RowReader) = {
-                    TableId = TableId <| row.uuid "table_id"
-                    RestaurantId = RestaurantId <| row.uuid "table_id"
-                    Capacity = row.int "capacity"
-                    Date = DateOnly.FromDateTime <| row.dateTime "date"
-                    DailySchedule = row.fieldValue<Map<TimeSlot, Reservation option>> "daily_schedule"
-                }
+    let mapToTable (row: RowReader): Table = 
+      {
+          TableId = TableId <| row.uuid "table_id"
+          RestaurantId = RestaurantId <| row.uuid "restaurant_id"
+          Capacity = row.int "capacity"
+          Date = DateOnly.FromDateTime <| row.dateTime "table_date"
+          DailySchedule = row.fieldValue<string> "daily_schedule" 
+                          |> (fun json -> Json.deserialize<Map<string, Reservation option>> json) 
+                          |> Map.toList |> List.map (fun (k,v) -> (TimeSlot(k), v)) |> Map.ofList
+      }
 
     interface TableRepository with
       
@@ -26,8 +30,8 @@ module DB =
         try  
           connectionString
             |> Sql.connect
-            |> Sql.query "SELECT * FROM restaurant_table where id = @id"
-            |> Sql.parameters [ "id", Sql.uuid tableId.Value ]
+            |> Sql.query "SELECT * FROM restaurant_table where table_id = @table_id"
+            |> Sql.parameters [ "table_id", Sql.uuid tableId.Value ]
             |> Sql.executeRow mapToTable
             |> Ok
         with
@@ -37,6 +41,8 @@ module DB =
         failwith "Not Implemented"
 
 
+// https://github.com/vsapronov/FSharp.Json
+// https://github.com/fsprojects/awesome-fsharp#serialization
 // https://github.com/Zaid-Ajaj/Npgsql.FSharp
 // https://zetcode.com/csharp/postgresql/
 // https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transactionscope?redirectedfrom=MSDN&view=net-6.0
@@ -52,3 +58,5 @@ module DB =
 // https://github.com/testcontainers/testcontainers-dotnet
 
 // transactional with computational expresion: https://en.wikibooks.org/wiki/F_Sharp_Programming/Computation_Expressions#Syntax_Sugar
+
+// https://github.com/vsapronov/FSharp.Json

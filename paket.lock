@@ -22,6 +22,8 @@ NUGET
       FSharp.Core (>= 4.7.2)
       Microsoft.Bcl.AsyncInterfaces (>= 5.0)
     FSharp.Core (6.0.5)
+    FSharp.Json (0.4.1)
+      FSharp.Core (>= 4.6.2)
     FSharpx.Async (1.14.1)
       FSharp.Control.AsyncSeq (>= 2.0.21)
       FSharp.Core (>= 4.6.2)

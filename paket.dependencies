@@ -8,6 +8,7 @@ nuget Expecto
 nuget fluentassertions.json
 nuget foq
 nuget FSharp.Core
+nuget FSharp.Json
 nuget FSharpx.Extras
 nuget Giraffe
 nuget Microsoft.AspNetCore.TestHost

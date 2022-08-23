@@ -6,7 +6,7 @@ open System.Text.RegularExpressions
 
 type DomainError = TableNotFound | NotAvailableTimeSlot | TableAlreadyReserved | InvalidTimeSlot | TableCapacityDoesNotFit
 
-type ReservationRequest = ReservationRequest of persons : int * name: string * ref: string* timeSlot: string
+type ReservationRequest = ReservationRequest of persons : int * name: string * ref: string * timeSlot: string
 
 type RestaurantId = RestaurantId of Guid
   with member this.Value = this |> fun (RestaurantId v) -> v
@@ -18,6 +18,7 @@ type ReservationRef = ReservationRef of String
   with member this.Value = this |> fun (ReservationRef v) -> v
 
 type TimeSlot = TimeSlot of String
+  with member this.Value = this |> fun (TimeSlot v) -> v
 
 module TimeSlot =
 
