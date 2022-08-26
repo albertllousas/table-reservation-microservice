@@ -7,6 +7,8 @@ open Reservation.Domain.Model
 open Reservation.Infra.OutputAdapters.DB
 open Reservation.Domain.Model.OutputPorts
 open Reservation.Tests.Fixtures
+open Reservation.Tests.Fixtures.Builders.TableBuilder
+open Xunit
 
 let tableRepositoryTests setup = [
 
@@ -17,7 +19,7 @@ let tableRepositoryTests setup = [
            fun _ ->         
             let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
             let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
-            let table = {
+            let table: Table = {
                 TableId = Guid.NewGuid() |> TableId 
                 RestaurantId = Guid.NewGuid() |> RestaurantId
                 Capacity = 4
@@ -43,7 +45,29 @@ let tableRepositoryTests setup = [
 
           Assert.IsError result TableNotFound
       )
-      }    
+      }  
+
+    test "Should find tables of a restaurant by date" {
+      setup(
+        fun _ ->   
+          let id = Guid.NewGuid()
+          let d = DateOnly(2022, 1, 1)  
+          let t1 = tableBuilder |> restaurantId id |> date d |> buildTable
+          let t2 = tableBuilder |> buildTable
+          let t3 = tableBuilder |> restaurantId id |> date d |>buildTable
+          let t4 = tableBuilder |> buildTable
+          DB.insertTable t1
+          DB.insertTable t2
+          DB.insertTable t3
+          DB.insertTable t4
+
+          let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString)
+
+          let result = repo.FindAllBy (id |> RestaurantId) d
+
+          Assert.Equal<Table list>(result , [t1; t3])
+        )
+      }       
     ]
   ]
 

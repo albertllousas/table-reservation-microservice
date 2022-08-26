@@ -12,19 +12,23 @@ module DB =
     
     let mapToTable (row: RowReader): Table = 
       {
-          TableId = TableId <| row.uuid "table_id"
-          RestaurantId = RestaurantId <| row.uuid "restaurant_id"
-          Capacity = row.int "capacity"
-          Date = DateOnly.FromDateTime <| row.dateTime "table_date"
-          DailySchedule = row.fieldValue<string> "daily_schedule" 
-                          |> (fun json -> Json.deserialize<Map<string, Reservation option>> json) 
-                          |> Map.toList |> List.map (fun (k,v) -> (TimeSlot(k), v)) |> Map.ofList
+        TableId = TableId <| row.uuid "table_id"
+        RestaurantId = RestaurantId <| row.uuid "restaurant_id"
+        Capacity = row.int "capacity"
+        Date = DateOnly.FromDateTime <| row.dateTime "table_date"
+        DailySchedule = row.fieldValue<string> "daily_schedule" 
+                        |> (fun json -> Json.deserialize<Map<string, Reservation option>> json) 
+                        |> Map.toList |> List.map (fun (k,v) -> (TimeSlot(k), v)) |> Map.ofList
       }
 
     interface TableRepository with
       
-      member _.FindAllBy(restaurantId: RestaurantId) (date: DateTime): Result<Table list, DomainError> = 
-        failwith "Not Implemented"
+      member _.FindAllBy(restaurantId: RestaurantId) (date: DateOnly): Table list = 
+        connectionString
+          |> Sql.connect
+          |> Sql.query "SELECT * FROM restaurant_table where restaurant_id = @table_id AND table_date = @table_date"
+          |> Sql.parameters [ "table_id", Sql.uuid restaurantId.Value; "table_date", Sql.timestamp (date.ToDateTime(TimeOnly.Parse("00:00 AM"))) ]
+          |> Sql.execute mapToTable
 
       member _.FindBy(tableId: TableId): Result<Table, DomainError> = 
         try  

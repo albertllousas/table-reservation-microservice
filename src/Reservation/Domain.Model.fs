@@ -76,7 +76,7 @@ module InputPorts =
 module OutputPorts = 
 
   type TableRepository = 
-    abstract member FindAllBy : RestaurantId -> DateTime -> Result<Table list, DomainError>  
+    abstract member FindAllBy : RestaurantId -> DateOnly -> Table list  
     abstract member FindBy : TableId -> Result<Table, DomainError> 
     abstract member Save : Table -> unit  
     
