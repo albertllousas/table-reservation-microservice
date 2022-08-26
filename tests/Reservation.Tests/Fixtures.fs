@@ -14,7 +14,10 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
 open Reservation.Domain.Model
-open System.Runtime.CompilerServices
+open Ductus.FluentDocker.Builders;
+open Microsoft.Extensions.Logging
+open Evolve
+open Npgsql
 
 module Http = 
 
@@ -97,3 +100,26 @@ module Builders =
         Date = (DateOnly.FromDateTime DateTime.Now, builder.Date) ||> Option.defaultValue 
         DailySchedule = (Map.empty, builder.DailySchedule) ||> Option.defaultValue 
       }
+
+module DB =
+
+  let startPostgresContainer() = 
+    Builder()
+      .UseContainer()
+      .UseImage("convox/postgres")
+      .ExposePort(5432, 5432)
+      .WithEnvironment("POSTGRES_PASSWORD=restaurant", "POSTGRES_USER=restaurant", "POSTGRES_DATABASE=restaurant")
+      .WaitForProcess("postgres", 30000)
+      .Build()
+      .Start()
+
+  let log = LoggerFactory.Create(fun builder -> builder.AddConsole()|> ignore).CreateLogger("Test")
+
+  let connectionString = "Host=localhost;Database=restaurant;Username=restaurant;Password=restaurant"
+
+  let migrate () = 
+    try
+      let conn = new NpgsqlConnection(connectionString)
+      (new Evolve(conn, (fun msg -> log.LogInformation msg), Locations = ["db/migrations"], IsEraseDisabled = true)).Migrate()
+    with ex -> log.LogError ex.Message; raise ex 
+      
