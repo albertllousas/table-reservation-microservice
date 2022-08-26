@@ -42,7 +42,7 @@ module DB =
           | :? NoResultsException -> Error TableNotFound
 
       member _.Save(table: Table): unit = 
-        failwith "Not Implemented"
+        failwith "Not Implemented" // versions and op locking
 
 
 // https://github.com/vsapronov/FSharp.Json

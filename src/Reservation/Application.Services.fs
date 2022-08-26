@@ -20,12 +20,12 @@ open Reservation.Domain.Model.OutputPorts
     // return availableTables     
 
 let reserveTable (tableRepository: TableRepository) (idGenerator: IdGenerator) (reserve: Table.Reserve): ReserveTable = 
-    fun (req: ReserveTableRequest) -> 
-        result {
-            let! table = tableRepository.FindBy <| TableId(req.TableId)
-            let reservationRequest = ReservationRequest(req.Persons, req.Name, idGenerator.RandomString 5, req.TimeSlot)
-            let! (ref, reservedTable) = reserve reservationRequest table 
-            tableRepository.Save reservedTable
-            // publishEvent TableReservedEvent.from reservedTable ref
-            return { TableId = table.TableId.Value; ReservationRef = ref.Value }
-        }
+  fun (req: ReserveTableRequest) -> 
+    result {
+      let! table = tableRepository.FindBy <| TableId(req.TableId)
+      let reservationRequest = ReservationRequest(req.Persons, req.Name, idGenerator.RandomString 5, req.TimeSlot)
+      let! (ref, reservedTable) = reserve reservationRequest table 
+      tableRepository.Save reservedTable
+      // publishEvent TableReservedEvent.from reservedTable ref
+      return { TableId = table.TableId.Value; ReservationRef = ref.Value }
+    }
