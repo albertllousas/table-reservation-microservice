@@ -3,10 +3,7 @@ module Reservation.Infra.OutputAdaptersTests
 open FSharp.Core
 open System
 open Expecto
-open Npgsql
 open Reservation.Domain.Model
-open Npgsql.FSharp
-open FSharp.Json
 open Reservation.Infra.OutputAdapters.DB
 open Reservation.Domain.Model.OutputPorts
 open Reservation.Tests.Fixtures
@@ -27,18 +24,7 @@ let tableRepositoryTests setup = [
                 Date = DateOnly.FromDateTime DateTime.Now
                 DailySchedule = schedule 
               }
-            DB.connectionString
-              |> Sql.connect
-              |> Sql.query "INSERT INTO restaurant_table VALUES (@table_id, @restaurant_id, @capacity, @table_date, @daily_schedule)"
-              |> Sql.parameters [ 
-                  "table_id", Sql.uuid table.TableId.Value;
-                  "restaurant_id", Sql.uuid table.RestaurantId.Value;
-                  "capacity", Sql.int table.Capacity;
-                  "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
-                  "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
-                ]
-              |> Sql.executeNonQuery 
-              |> ignore
+            DB.insertTable table
 
             let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString)
 

@@ -18,6 +18,8 @@ open Ductus.FluentDocker.Builders;
 open Microsoft.Extensions.Logging
 open Evolve
 open Npgsql
+open Npgsql.FSharp
+open FSharp.Json
 
 module Http = 
 
@@ -122,4 +124,18 @@ module DB =
       let conn = new NpgsqlConnection(connectionString)
       (new Evolve(conn, (fun msg -> log.LogInformation msg), Locations = ["db/migrations"], IsEraseDisabled = true)).Migrate()
     with ex -> log.LogError ex.Message; raise ex 
+
+  let insertTable table = 
+    connectionString
+      |> Sql.connect
+      |> Sql.query "INSERT INTO restaurant_table VALUES (@table_id, @restaurant_id, @capacity, @table_date, @daily_schedule)"
+      |> Sql.parameters [ 
+          "table_id", Sql.uuid table.TableId.Value;
+          "restaurant_id", Sql.uuid table.RestaurantId.Value;
+          "capacity", Sql.int table.Capacity;
+          "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
+          "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
+        ]
+      |> Sql.executeNonQuery 
+      |> ignore
       
