@@ -61,4 +61,11 @@ module DB =
             ]
           |> Sql.executeRow (fun row -> row.int64 "aggregate_version")
           |> (fun version -> if version <> (table.Version + 1L) then raise ConcurrencyError else () ) 
-          
+
+module Ids = 
+
+  type RandomIdGenerator = 
+    interface IdGenerator with
+      member _.Guid(): Guid = Guid.NewGuid()
+      member _.RandomString(size: int): string = new String(Array.init size (fun _-> char (Random().Next(97,123))))
+         
