@@ -39,6 +39,7 @@ type Table = {
   Capacity: int
   Date : DateOnly
   DailySchedule : Map<TimeSlot, Reservation option>
+  Version : int64
 }
 
 module Table =

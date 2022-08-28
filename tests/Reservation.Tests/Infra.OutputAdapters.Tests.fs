@@ -24,7 +24,8 @@ let tableRepositoryTests setup = [
                 RestaurantId = Guid.NewGuid() |> RestaurantId
                 Capacity = 4
                 Date = DateOnly.FromDateTime DateTime.Now
-                DailySchedule = schedule 
+                DailySchedule = schedule
+                Version = 1 
               }
             DB.insertTable table
 
@@ -45,7 +46,7 @@ let tableRepositoryTests setup = [
 
           Assert.IsError result TableNotFound
       )
-      }  
+    }  
 
     test "Should find tables of a restaurant by date" {
       setup(
@@ -67,7 +68,72 @@ let tableRepositoryTests setup = [
 
           Assert.Equal<Table list>(result , [t1; t3])
         )
-      }       
+      } 
+
+    test "Should save a table" {
+      setup(
+        fun _ ->         
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
+          let table: Table = {
+              TableId = Guid.NewGuid() |> TableId 
+              RestaurantId = Guid.NewGuid() |> RestaurantId
+              Capacity = 4
+              Date = DateOnly.FromDateTime DateTime.Now
+              DailySchedule = schedule 
+              Version = 0
+            }
+          let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString) 
+
+          repo.Save table
+
+          Assert.IsOk (repo.FindBy table.TableId) { table with Version = 1}
+        )
+      }
+
+    test "Should update a table if it already exists" {
+      setup(
+        fun _ ->         
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
+          let table: Table = {
+              TableId = Guid.NewGuid() |> TableId 
+              RestaurantId = Guid.NewGuid() |> RestaurantId
+              Capacity = 4
+              Date = DateOnly.FromDateTime DateTime.Now
+              DailySchedule = schedule
+              Version = 1  
+            }
+          let updatedTable = { table with Capacity = 5}
+          let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString) 
+          DB.insertTable table
+
+          repo.Save updatedTable
+
+          Assert.IsOk (repo.FindBy table.TableId) { updatedTable with Version = 2}
+        )
+      }
+
+    test "Should fail updating a table if there is a concurrency problem" {
+      setup(
+        fun _ ->         
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
+          let table: Table = {
+              TableId = Guid.NewGuid() |> TableId 
+              RestaurantId = Guid.NewGuid() |> RestaurantId
+              Capacity = 4
+              Date = DateOnly.FromDateTime DateTime.Now
+              DailySchedule = schedule
+              Version = 1  
+            }
+          let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString) 
+          DB.insertTable table
+          DB.incVersion table
+
+          Assert.Throws<ConcurrencyError>(fun () -> repo.Save table) |> ignore
+        )
+      }          
     ]
   ]
 

@@ -8,6 +8,8 @@ open FSharp.Json
 
 module DB =
 
+  exception ConcurrencyError 
+
   type PostgresqlTableRepository(connectionString: string) =
     
     let mapToTable (row: RowReader): Table = 
@@ -19,6 +21,7 @@ module DB =
         DailySchedule = row.fieldValue<string> "daily_schedule" 
                         |> (fun json -> Json.deserialize<Map<string, Reservation option>> json) 
                         |> Map.toList |> List.map (fun (k,v) -> (TimeSlot(k), v)) |> Map.ofList
+        Version = row.int64 "aggregate_version"
       }
 
     interface TableRepository with
@@ -42,25 +45,20 @@ module DB =
           | :? NoResultsException -> Error TableNotFound
 
       member _.Save(table: Table): unit = 
-        failwith "Not Implemented" // versions and op locking
-
-
-// https://github.com/vsapronov/FSharp.Json
-// https://github.com/fsprojects/awesome-fsharp#serialization
-// https://github.com/Zaid-Ajaj/Npgsql.FSharp
-// https://zetcode.com/csharp/postgresql/
-// https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transactionscope?redirectedfrom=MSDN&view=net-6.0
-
-// https://www.c-sharpcorner.com/uploadfile/4d56e1/connection-pooling-ado-net/
-
-// https://docs.microsoft.com/en-us/dotnet/framework/data/transactions/implementing-an-implicit-transaction-using-transaction-scope
-// https://fsprojects.github.io/FSharp.Data.SqlClient/index.html
-// https://fsprojects.github.io/FSharp.Data.SqlClient/comparison.html
-// https://fsprojects.github.io/FSharp.Data.SqlClient/transactions.html
-
-
-// https://github.com/testcontainers/testcontainers-dotnet
-
-// transactional with computational expresion: https://en.wikibooks.org/wiki/F_Sharp_Programming/Computation_Expressions#Syntax_Sugar
-
-// https://github.com/vsapronov/FSharp.Json
+        connectionString
+          |> Sql.connect
+          |> Sql.query """INSERT INTO restaurant_table VALUES (@table_id, @restaurant_id, @capacity, @table_date, @daily_schedule, @aggregate_version)
+                       ON CONFLICT (table_id) DO UPDATE SET restaurant_id = @restaurant_id, CAPACITY = @capacity, TABLE_DATE = @table_date, DAILY_SCHEDULE = @daily_schedule, AGGREGATE_VERSION= restaurant_table.aggregate_version + 1 
+                       RETURNING *
+                       """
+          |> Sql.parameters [ 
+              "table_id", Sql.uuid table.TableId.Value;
+              "restaurant_id", Sql.uuid table.RestaurantId.Value;
+              "capacity", Sql.int table.Capacity;
+              "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
+              "aggregate_version", Sql.int64 (table.Version + 1L)
+              "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
+            ]
+          |> Sql.executeRow (fun row -> row.int64 "aggregate_version")
+          |> (fun version -> if version <> (table.Version + 1L) then raise ConcurrencyError else () ) 
+          

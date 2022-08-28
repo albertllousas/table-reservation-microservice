@@ -7,8 +7,8 @@
     <Compile Include="src/Reservation/Domain.Model.fs" />
     <Compile Include="src/Reservation/Application.Services.fs" />
     <Compile Include="src/Reservation/Infra.InputAdapters.fs" />
-    <Compile Include="src/Reservation/Infra.OutputAdapters.fs" />
     <Compile Include="tests/Reservation.Tests/Fixtures.fs" />
+    <Compile Include="src/Reservation/Infra.OutputAdapters.fs" />
     <Compile Include="tests/Reservation.Tests/Domain.Model.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Application.Services.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Infra.InputAdapters.Tests.fs" />

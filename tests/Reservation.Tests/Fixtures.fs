@@ -79,9 +79,10 @@ module Builders =
       Capacity: int option
       Date : DateOnly option
       DailySchedule : Map<TimeSlot, Reservation option> option
+      Version : int64 option
       }
 
-    let tableBuilder: Builder = { TableId= None; RestaurantId= None; Capacity= None; Date= None; DailySchedule= None; }
+    let tableBuilder: Builder = { TableId= None; RestaurantId= None; Capacity= None; Date= None; DailySchedule= None; Version=None}
 
     let tableId (id: Guid) (builder: Builder) : Builder = { builder with TableId= Some id }
 
@@ -93,6 +94,8 @@ module Builders =
 
     let dailySchedule (map: Map<TimeSlot, Reservation option>) (builder: Builder) : Builder = { builder with DailySchedule= Some map }
 
+    let version (version: int64) (builder: Builder) : Builder = { builder with Version= Some version }
+
 
     let buildTable (builder: Builder) : Table = 
       {
@@ -101,6 +104,7 @@ module Builders =
         Capacity = (4, builder.Capacity) ||> Option.defaultValue 
         Date = (DateOnly.FromDateTime DateTime.Now, builder.Date) ||> Option.defaultValue 
         DailySchedule = (Map.empty, builder.DailySchedule) ||> Option.defaultValue 
+        Version = (0L, builder.Version) ||> Option.defaultValue
       }
 
 module DB =
@@ -128,14 +132,23 @@ module DB =
   let insertTable table = 
     connectionString
       |> Sql.connect
-      |> Sql.query "INSERT INTO restaurant_table VALUES (@table_id, @restaurant_id, @capacity, @table_date, @daily_schedule)"
+      |> Sql.query "INSERT INTO restaurant_table VALUES (@table_id, @restaurant_id, @capacity, @table_date, @daily_schedule, @aggregate_version)"
       |> Sql.parameters [ 
           "table_id", Sql.uuid table.TableId.Value;
           "restaurant_id", Sql.uuid table.RestaurantId.Value;
           "capacity", Sql.int table.Capacity;
+          "aggregate_version", Sql.int64 table.Version
           "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
           "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
         ]
       |> Sql.executeNonQuery 
       |> ignore
+  
+  let incVersion table = 
+    connectionString
+     |> Sql.connect
+     |> Sql.query "UPDATE restaurant_table SET aggregate_version = aggregate_version + 1 WHERE table_id= @table_id"
+     |> Sql.parameters [ "table_id", Sql.uuid table.TableId.Value; ]
+     |> Sql.executeNonQuery 
+     |> ignore
       

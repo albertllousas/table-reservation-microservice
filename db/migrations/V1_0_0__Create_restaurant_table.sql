@@ -3,6 +3,7 @@ create table restaurant_table(
   restaurant_id UUID NOT NULL,
   capacity integer NOT NULL,
   table_date TIMESTAMP WITH TIME ZONE NOT NULL,
-  daily_schedule JSONB NOT NULL DEFAULT '{}'::JSONB
+  daily_schedule JSONB NOT NULL DEFAULT '{}'::JSONB,
+  aggregate_version bigint NOT NULL
 );
 
