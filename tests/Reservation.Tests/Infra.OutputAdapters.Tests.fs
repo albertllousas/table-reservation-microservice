@@ -17,7 +17,7 @@ let tableRepositoryTests setup = [
     test "Should find a table" {
       setup(
            fun _ ->         
-            let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+            let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
             let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
             let table: Table = {
                 TableId = Guid.NewGuid() |> TableId 
@@ -73,7 +73,7 @@ let tableRepositoryTests setup = [
     test "Should save a table" {
       setup(
         fun _ ->         
-          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
           let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
           let table: Table = {
               TableId = Guid.NewGuid() |> TableId 
@@ -94,7 +94,7 @@ let tableRepositoryTests setup = [
     test "Should update a table if it already exists" {
       setup(
         fun _ ->         
-          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
           let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
           let table: Table = {
               TableId = Guid.NewGuid() |> TableId 
@@ -117,7 +117,7 @@ let tableRepositoryTests setup = [
     test "Should fail updating a table if there is a concurrency problem" {
       setup(
         fun _ ->         
-          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
+          let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
           let schedule = (Map.add (TimeSlot("21:00")) (Some reservation) Map.empty)
           let table: Table = {
               TableId = Guid.NewGuid() |> TableId 

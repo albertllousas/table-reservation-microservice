@@ -6,13 +6,16 @@ open System.Text.RegularExpressions
 
 type DomainError = TableNotFound | NotAvailableTimeSlot | TableAlreadyReserved | InvalidTimeSlot | TableCapacityDoesNotFit
 
-type ReservationRequest = ReservationRequest of persons : int * name: string * ref: string * timeSlot: string
+type ReservationRequest = ReservationRequest of persons : int * customerId: Guid * ref: string * timeSlot: string
 
 type RestaurantId = RestaurantId of Guid
   with member this.Value = this |> fun (RestaurantId v) -> v
 
 type TableId = TableId of Guid
   with member this.Value = this |> fun (TableId v) -> v
+
+type CustomerId = CustomerId of Guid
+  with member this.Value = this |> fun (CustomerId v) -> v
 
 type ReservationRef = ReservationRef of String
   with member this.Value = this |> fun (ReservationRef v) -> v
@@ -30,7 +33,7 @@ type Reservation = {
   ReservationRef: ReservationRef
   Persons: int
   TimeSlot: TimeSlot
-  Name: string
+  CustomerId: CustomerId
 }
 
 type Table = {
@@ -57,9 +60,9 @@ module Table =
   
   let reserve : Reserve = fun req table -> 
      result {
-      let (ReservationRequest (persons, name, ref, timeSlot)) = req
+      let (ReservationRequest (persons, customerId, ref, timeSlot)) = req
       let! validTimeSlot = TimeSlot.create timeSlot 
-      let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; Name = name }
+      let reservation: Reservation = { ReservationRef = ReservationRef(ref); Persons = persons; TimeSlot = validTimeSlot; CustomerId = CustomerId(customerId) }
       do! checkAvailability reservation table
       do! checkCapacity persons table
       let newTable =  { table with DailySchedule = Map.add validTimeSlot (Some reservation) table.DailySchedule }
@@ -68,7 +71,7 @@ module Table =
 
 module InputPorts =
 
-  type ReserveTableRequest = { TableId : Guid; Date : DateOnly; Persons: int; Name: string; TimeSlot: string }
+  type ReserveTableRequest = { TableId : Guid; Date : DateOnly; Persons: int; CustomerId: Guid; TimeSlot: string }
 
   type ReserveTableResponse = { TableId: Guid; ReservationRef: String }
 

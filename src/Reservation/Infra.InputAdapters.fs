@@ -10,7 +10,7 @@ open Microsoft.AspNetCore.Http
 module Http =
 
     [<CLIMutable>]
-    type ReserveTableHttpRequestDto = { Date : string; Name: string; Persons: int; TimeSlot: string  }
+    type ReserveTableHttpRequestDto = { Date : string; CustomerId: Guid; Persons: int; TimeSlot: string  }
 
     [<CLIMutable>]
     type ReserveTableHttpResponseDto = { Ref: String; TableId: Guid }
@@ -31,7 +31,7 @@ module Http =
             task {
                 let! dto = ctx.BindModelAsync<ReserveTableHttpRequestDto>()
                 let date = DateOnly.ParseExact(dto.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None)
-                let result = reserveTable { TableId = tableId; Date = date; Name = dto.Name; Persons = dto.Persons; TimeSlot =  dto.TimeSlot}
+                let result = reserveTable { TableId = tableId; Date = date; CustomerId = dto.CustomerId; Persons = dto.Persons; TimeSlot =  dto.TimeSlot}
                 return! (match result with
                         | Ok r -> { Ref = r.ReservationRef; TableId = r.TableId } |> Successful.CREATED 
                         | Error e -> asErrorResponse e) next ctx

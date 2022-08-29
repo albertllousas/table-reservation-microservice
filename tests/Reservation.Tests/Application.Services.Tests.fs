@@ -12,7 +12,7 @@ let private guid = Guid.NewGuid()
 
 let private table = tableBuilder |> buildTable
 
-let private reservationRequest: InputPorts.ReserveTableRequest = { TableId = table.TableId.Value; Date = table.Date; Persons = 3; Name = "John Doe"; TimeSlot = "20:00" }
+let private reservationRequest: InputPorts.ReserveTableRequest = { TableId = table.TableId.Value; Date = table.Date; Persons = 3; CustomerId = Guid.NewGuid(); TimeSlot = "20:00" }
 
 let private idGenerator = {
     new OutputPorts.IdGenerator with 

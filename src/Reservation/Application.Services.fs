@@ -23,7 +23,7 @@ let reserveTable (tableRepository: TableRepository) (idGenerator: IdGenerator) (
   fun (req: ReserveTableRequest) -> 
     result {
       let! table = tableRepository.FindBy <| TableId(req.TableId)
-      let reservationRequest = ReservationRequest(req.Persons, req.Name, idGenerator.RandomString 5, req.TimeSlot)
+      let reservationRequest = ReservationRequest(req.Persons, req.CustomerId, idGenerator.RandomString 5, req.TimeSlot)
       let! (ref, reservedTable) = reserve reservationRequest table 
       tableRepository.Save reservedTable
       // publishEvent TableReservedEvent.from reservedTable ref
