@@ -48,7 +48,7 @@ let tests =
       Mock.Verify(<@ tableRepositoryMock.Save table @>, never)
     }
 
-    test "Should fail orchestrating the reservation when reserve itself fails" {
+    test "Should fail orchestrating the reservation when reserving the table fails" {
       let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
       let reserveFails : Table.Reserve = fun _ _ -> Error NotAvailableTimeSlot
       let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveFails

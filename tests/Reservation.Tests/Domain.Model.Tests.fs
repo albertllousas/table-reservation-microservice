@@ -9,9 +9,9 @@ open Reservation.Tests.Fixtures.Builders.TableBuilder
 [<Tests>]
 let tests =
 
-  testList "Table" [  
+  testList "Domain" [  
 
-    testList "Reserve" [
+    testList "Table" [
 
       let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; Name="Jane Doe"; TimeSlot = TimeSlot("21:00") }
 
@@ -62,4 +62,15 @@ let tests =
         Assert.IsError result TableCapacityDoesNotFit
       }
     ]
+
+    testList "TimeSlot" [ 
+
+      test "Should create a valid time slot" {
+        Assert.IsOk (TimeSlot.create "22:00") (TimeSlot("22:00"))
+      }   
+
+      test "Should fail creating a time slot when the format is invalid" {
+        Assert.IsError (TimeSlot.create "25:00") InvalidTimeSlot
+      }   
+    ]  
   ]
