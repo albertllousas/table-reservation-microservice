@@ -13,3 +13,4 @@ Npgsql.FSharp
 Ductus.FluentDocker
 Evolve
 FSharp.Json
+Newtonsoft.Json

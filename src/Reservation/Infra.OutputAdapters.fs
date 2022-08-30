@@ -4,7 +4,7 @@ open Reservation.Domain.Model.OutputPorts
 open System
 open Reservation.Domain.Model
 open Npgsql.FSharp
-open FSharp.Json
+open Newtonsoft.Json
 
 module DB =
 
@@ -19,7 +19,7 @@ module DB =
         Capacity = row.int "capacity"
         Date = DateOnly.FromDateTime <| row.dateTime "table_date"
         DailySchedule = row.fieldValue<string> "daily_schedule" 
-                        |> (fun json -> Json.deserialize<Map<string, Reservation option>> json) 
+                        |> (fun json -> JsonConvert.DeserializeObject<Map<string, Reservation option>> json) 
                         |> Map.toList |> List.map (fun (k,v) -> (TimeSlot(k), v)) |> Map.ofList
         Version = row.int64 "aggregate_version"
       }
@@ -57,14 +57,14 @@ module DB =
               "capacity", Sql.int table.Capacity;
               "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
               "aggregate_version", Sql.int64 (table.Version + 1L)
-              "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
+              "daily_schedule", Sql.jsonb (JsonConvert.SerializeObject (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
             ]
           |> Sql.executeRow (fun row -> row.int64 "aggregate_version")
           |> (fun version -> if version <> (table.Version + 1L) then raise ConcurrencyError else () ) 
 
 module Ids = 
 
-  type RandomIdGenerator = 
+  type RandomIdGenerator() = 
     interface IdGenerator with
       member _.Guid(): Guid = Guid.NewGuid()
       member _.RandomString(size: int): string = new String(Array.init size (fun _-> char (Random().Next(97,123))))

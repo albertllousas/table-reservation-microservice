@@ -14,12 +14,12 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
 open Reservation.Domain.Model
-open Ductus.FluentDocker.Builders;
+open Ductus.FluentDocker.Builders
 open Microsoft.Extensions.Logging
 open Evolve
 open Npgsql
 open Npgsql.FSharp
-open FSharp.Json
+open Newtonsoft.Json
 
 module Http = 
 
@@ -139,7 +139,7 @@ module DB =
           "capacity", Sql.int table.Capacity;
           "aggregate_version", Sql.int64 table.Version
           "table_date", Sql.timestamp (table.Date.ToDateTime(TimeOnly.Parse("00:00 AM")));
-          "daily_schedule", Sql.jsonb (Json.serialize (table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
+          "daily_schedule", Sql.jsonb (JsonConvert.SerializeObject ( table.DailySchedule |> Map.toList |> List.map (fun (k,v) -> (k.Value, v)) |> Map.ofList))
         ]
       |> Sql.executeNonQuery 
       |> ignore

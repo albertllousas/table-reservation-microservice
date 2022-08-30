@@ -4,20 +4,22 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="db\**\*.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="src/Reservation/Domain.Model.fs" />
     <Compile Include="src/Reservation/Application.Services.fs" />
     <Compile Include="src/Reservation/Infra.InputAdapters.fs" />
-    <Compile Include="tests/Reservation.Tests/Fixtures.fs" />
     <Compile Include="src/Reservation/Infra.OutputAdapters.fs" />
+    <Compile Include="src/Reservation/Infra.Config.fs" />
+    <Compile Include="tests/Reservation.Tests/Fixtures.fs" />
     <Compile Include="tests/Reservation.Tests/Domain.Model.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Application.Services.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Infra.InputAdapters.Tests.fs" />
     <Compile Include="tests/Reservation.Tests/Infra.OutputAdapters.Tests.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="db\**\*.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Compile Include="tests/Reservation.Tests/Acceptance.Tests.fs" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

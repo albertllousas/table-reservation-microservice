@@ -2,4 +2,4 @@
 
 !!IN PROGRESS!!
 
-Missing:  diagrams, explanation, tx management, outbox pattern, domian events with kafka
+Missing:  diagrams, explanation, tx management, outbox pattern, domain events with kafka, get consig from json

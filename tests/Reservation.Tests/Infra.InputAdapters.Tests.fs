@@ -17,7 +17,7 @@ let private customerId = Guid.NewGuid()
 
 let private date = DateTime.Now.ToString("yyyy-MM-dd")
 
-let private json = $"""{{ "restaurantId":"{restaurantId}", "date":"{date}", "people": 4, "customerId": "{customerId}", "timeSlot": "20:00" }}"""
+let private json = $"""{{ "restaurantId":"{restaurantId}", "date":"{date}", "persons": 4, "customerId": "{customerId}", "timeSlot": "20:00" }}"""
 
 [<Tests>]
 let tests =
