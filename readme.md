@@ -66,3 +66,12 @@ Response:
   "tableId":"6de09dfb-1bd5-4263-af68-aa60e54968d4"
 }
 ```
+
+### Table Aggregate
+
+To ensure the integrity annd consistency of the different invariants, the aggregate will be a table restaurant, partitioned by day.
+
+<p align="center">
+  <img width="80%" src="./img/agg.png">
+</p>
+
