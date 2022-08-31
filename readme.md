@@ -35,7 +35,7 @@ The system should **let customers** to reserve a table in a restaurant:
 ## Endpoints
 
 - Get available slots:
-```json
+```
 GET /tables/available?restaurant-id=530a3998-81ee-4112-8080-54332f4025ee&date=2022-10-11
 ```
 Response:
@@ -50,8 +50,11 @@ Response:
 ```
 
 - Reserve a table:
-```json
+```
 POST /tables/6de09dfb-1bd5-4263-af68-aa60e54968d4/reservations 
+```
+Body:
+```json
 {
   "date":"2022-10-11", 
   "persons": 3, 
