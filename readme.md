@@ -74,3 +74,5 @@ To ensure the integrity annd consistency of the different invariants, the aggreg
 <p align="center">
   <img width="70%" src="./img/aggregate.png">
 </p>
+
+[Aggregate code](./src/Reservation/Domain.Model.fs#L39)
