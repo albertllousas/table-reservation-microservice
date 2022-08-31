@@ -41,7 +41,6 @@ let postRequest path body =
 
 let givenAnExistentTable schedule = 
   let date = DateTime.Now    
-  let dateStr = date.ToString("yyyy-MM-dd")
   let restaurantId = Guid.NewGuid() |> RestaurantId
   let tableId = Guid.NewGuid() |> TableId 
   let table: Table = { TableId= tableId; RestaurantId= restaurantId; Capacity= 4; Date= DateOnly.FromDateTime(date); DailySchedule= schedule; Version= 1 }
@@ -59,7 +58,7 @@ let acceptanceTests =
             let schedule = (Map.add (TimeSlot("21:00")) (None) Map.empty)
             let table = givenAnExistentTable schedule
             let dateStr = table.Date.ToString("yyyy-MM-dd")
-            let json = $"""{{ "restaurantId":"{table.RestaurantId.Value}", "date":"{dateStr}", "persons": {table.Capacity}, "customerId": "{Guid.NewGuid()}", "timeSlot": "21:00" }}"""
+            let json = $"""{{"date":"{dateStr}", "persons": {table.Capacity}, "customerId": "{Guid.NewGuid()}", "timeSlot": "21:00" }}"""
 
             let response = postRequest $"/tables/{table.TableId.Value}/reservations" json
             // let content = response.Content.ReadAsStringAsync().Result
