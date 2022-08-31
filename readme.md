@@ -72,5 +72,5 @@ Response:
 To ensure the integrity annd consistency of the different invariants, the aggregate will be a table restaurant, partitioned by day.
 
 <p align="center">
-  <img width="80%" src="./img/agg.png">
+  <img width="70%" src="./img/aggregate.png">
 </p>
