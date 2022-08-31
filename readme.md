@@ -74,4 +74,3 @@ To ensure the integrity annd consistency of the different invariants, the aggreg
 <p align="center">
   <img width="80%" src="./img/agg.png">
 </p>
-
