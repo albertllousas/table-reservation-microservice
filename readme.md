@@ -15,7 +15,7 @@ In addition to that, it brings a full tested and production ready microservice (
 Keywords: `DDD`, `microservice`, `FSharp`, `Giraffe`, `Hexagonal-Architecture`, `SOLID`, `Domain-Driven Design`, `functional-programming`,
 `Testing`, `Event-Driven Architecture`, `Domain-Events`, `Kafka`, `PostgreSQL`, `Transactional-outbox`, `optimistic-locking`
 
-**NOTE:**I apologise in advance, I am a beginner in FSharp with a functional background in some langs (kotlin, scala, haskell) and development experience in JVM environments.
+**NOTE:** I apologise in advance, I am a beginner in FSharp with a functional background in some langs (kotlin, scala, haskell) and development experience in JVM environments.
 
 ## The problem to solve
 
