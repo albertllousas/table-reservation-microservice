@@ -72,7 +72,7 @@ Response:
 
 ### Table Aggregate
 
-To ensure the integrity annd consistency of the different invariants, the aggregate will be a table restaurant, partitioned by day.
+To ensure the integrity annd consistency of the different invariants, the aggregate will be a table of a restaurant, partitioned by day.
 
 <p align="center">
   <img width="70%" src="./img/agg.png">
