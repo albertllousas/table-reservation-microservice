@@ -1,7 +1,6 @@
 FSharp.Core
 xunit.runner.visualstudio
 Microsoft.NET.Test.Sdk
-xunit
 Giraffe
 fluentassertions.json
 Microsoft.AspNetCore.TestHost
@@ -14,3 +13,5 @@ Ductus.FluentDocker
 Evolve
 FSharp.Json
 Newtonsoft.Json
+FSharpPlus
+Xunit

@@ -9,6 +9,8 @@ open Reservation.Domain.Model.InputPorts
 open Reservation.Domain.Model
 open Expecto
 
+let private findAvailableTables: FindAvailableTables = fun _ -> Ok []
+
 let private tableId = Guid.NewGuid() 
 
 let private customerId = Guid.NewGuid() 
@@ -22,12 +24,12 @@ let tests =
 
   testList "Http" [
 
-    testList "Tests for route: POST '/restaurant/{id}/reservations'" [
+    testList "Tests for route: POST '/tables/{id}/reservations'" [
 
       testTask "Should success posting a reservation for a table" {
         
         let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
-        use server = createTestServer (Http.reservationRoutes reserveTable)
+        use server = createTestServer (Http.reservationRoutes reserveTable findAvailableTables)
         use client = server.CreateClient()
 
         let! response = post client $"/tables/{tableId}/reservations" json
@@ -48,7 +50,7 @@ let tests =
       for (error, code, payload) in expectations do 
         testTask $"Should fail posting a reservation for a table when reservation fails with {error}" {
           let reserveTable : ReserveTable = fun _ -> Error error
-          use server = createTestServer (Http.reservationRoutes reserveTable)
+          use server = createTestServer (Http.reservationRoutes reserveTable findAvailableTables)
           use client = server.CreateClient()
 
           let! (response: Http.HttpResponseMessage) = post client $"/tables/{Guid.NewGuid()}/reservations" json
@@ -58,5 +60,26 @@ let tests =
             |> isJson payload 
             |> ignore
         }     
+    ]
+
+    testList "Tests for route: GET '/tables/available'" [
+
+      testTask "Should success finding available tables" {
+        
+        let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
+        let availableTable = { TableId= Guid.NewGuid(); AvailableTimeSlots= [{TimeSlot= "21:00"; Capacity= 4}]}
+        let findAvailableTables: FindAvailableTables = fun _ -> Ok [availableTable]
+        let restaurantId = Guid.NewGuid()
+        let date = "2022-12-10"
+        use server = createTestServer (Http.reservationRoutes reserveTable findAvailableTables)
+        use client = server.CreateClient()
+
+        let! response = get client $"/tables/available?restaurant-id={restaurantId}&date={date}"
+
+        let! content = response |> isStatus HttpStatusCode.OK |> readText
+        content 
+            |> isJson $"""[{{ "tableId": "{availableTable.TableId}", "availableTimeSlots": [ {{ "timeSlot": "21:00", "capacity": 4 }} ] }}]""" 
+            |> ignore
+      }
     ]
   ]

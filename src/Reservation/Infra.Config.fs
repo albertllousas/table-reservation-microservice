@@ -24,7 +24,9 @@ module Dependencies =
 
   let reserveTableService: ReserveTable = reserveTable tableRepository idGenerator Table.reserve
 
-  let reservationRoutes = Http.reservationRoutes reserveTableService
+  let findAvailableTables: FindAvailableTables = fun _ -> Ok []
+
+  let reservationRoutes = Http.reservationRoutes reserveTableService findAvailableTables
 
 module BootstrapGiraffe =
 

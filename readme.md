@@ -34,7 +34,7 @@ The system should **let customers** to reserve a table in a restaurant:
 
 ## Endpoints
 
-- Get available slots:
+- Get available tables in a restaurant for a given date:
 ```
 GET /tables/available?restaurant-id=530a3998-81ee-4112-8080-54332f4025ee&date=2022-10-11
 ```

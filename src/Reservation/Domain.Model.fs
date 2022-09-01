@@ -77,6 +77,13 @@ module InputPorts =
 
   type ReserveTable = (ReserveTableRequest) -> Result<ReserveTableResponse, DomainError>
 
+  type FindAvailableTablesRequest = { RestaurantId : Guid; Date : DateOnly; }
+
+  type FindAvailableTableResponse = { TableId : Guid; AvailableTimeSlots : AvailableTable list } 
+  and AvailableTable = { TimeSlot: string; Capacity: int }
+
+  type FindAvailableTables = (FindAvailableTablesRequest) -> Result<FindAvailableTableResponse list, DomainError>
+
 module OutputPorts = 
 
   type TableRepository = 
@@ -86,4 +93,11 @@ module OutputPorts =
     
   type IdGenerator = 
     abstract member Guid: unit -> Guid
-    abstract member RandomString: size : int -> string   
+    abstract member RandomString: size : int -> string  
+
+module Result =
+  open FSharpPlus
+
+  let fold fOk fErr r = Result.either fOk fErr r
+
+  let map2 fn r1 r2 = Result.map2 fn r1 r2 

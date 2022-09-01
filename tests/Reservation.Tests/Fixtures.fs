@@ -31,6 +31,8 @@ module Http =
       let content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
       client.PostAsync(path, content)
 
+  let get (client : HttpClient) (path : string) = client.GetAsync(path)
+
   let readText (response : HttpResponseMessage) =
       response.Content.ReadAsStringAsync()
 
@@ -112,12 +114,13 @@ module DB =
   let startPostgresContainer() = 
     Builder()
       .UseContainer()
-      .UseImage("convox/postgres")
+      .UseImage("postgres")
       .ExposePort(5432, 5432)
-      .WithEnvironment("POSTGRES_PASSWORD=restaurant", "POSTGRES_USER=restaurant", "POSTGRES_DATABASE=restaurant")
+      .WithEnvironment("POSTGRES_PASSWORD=restaurant", "POSTGRES_USER=restaurant", "POSTGRES_DB=restaurant")
       .WaitForProcess("postgres", 30000)
       .Build()
       .Start()
+    
 
   let log = LoggerFactory.Create(fun builder -> builder.AddConsole()|> ignore).CreateLogger("Test")
 
@@ -126,7 +129,7 @@ module DB =
   let migrate () = 
     try
       let conn = new NpgsqlConnection(connectionString)
-      (new Evolve(conn, (fun msg -> log.LogInformation msg), Locations = ["db/migrations"], IsEraseDisabled = true)).Migrate()
+      (new Evolve(conn, (fun msg -> log.LogInformation msg), Locations = ["db/migrations"], IsEraseDisabled = false)).Migrate()
     with ex -> log.LogError ex.Message; raise ex 
 
   let insertTable table = 

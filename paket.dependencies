@@ -9,11 +9,12 @@ nuget fluentassertions.json
 nuget foq
 nuget FSharp.Core
 nuget FSharp.Json
+nuget FSharpPlus
 nuget FSharpx.Extras
 nuget Giraffe
 nuget Microsoft.AspNetCore.TestHost
 nuget Microsoft.NET.Test.Sdk
 nuget Npgsql.FSharp
-nuget xunit
+nuget Xunit 2.4.1
 nuget xunit.runner.visualstudio
 nuget YoloDev.Expecto.TestSdk
