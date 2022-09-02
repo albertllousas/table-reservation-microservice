@@ -25,37 +25,57 @@ let reserveSuccesfully : Table.Reserve = fun _ _ -> Ok (ReservationRef("hash"), 
 [<Tests>]
 let tests =
 
-  testList "Reserve table application service" [
+  testList "Application services" [
 
-    test "Should orchestrate the reservation of a table" {
-      let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
-      let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
+    testList "Reserve table application service" [
 
-      let result = reserveTable reservationRequest
+      test "Should orchestrate the reservation of a table" {
+        let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
 
-      let expectedResult: InputPorts.ReserveTableResponse = { TableId = table.TableId.Value; ReservationRef = "hash" }
-      Assert.Equal(result, Ok expectedResult)
-      Mock.Verify(<@ tableRepositoryMock.Save table @>)
-    }
+        let result = reserveTable reservationRequest
 
-    test "Should fail orchestrating the reservation when table is not found" {
-      let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Error TableNotFound).Create()
-      let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
+        let expectedResult: InputPorts.ReserveTableResponse = { TableId = table.TableId.Value; ReservationRef = "hash" }
+        Assert.Equal(result, Ok expectedResult)
+        Mock.Verify(<@ tableRepositoryMock.Save table @>)
+      }
 
-      let result = reserveTable reservationRequest
+      test "Should fail orchestrating the reservation when table is not found" {
+        let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Error TableNotFound).Create()
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
 
-      Assert.Equal(result, Error TableNotFound)
-      Mock.Verify(<@ tableRepositoryMock.Save table @>, never)
-    }
+        let result = reserveTable reservationRequest
 
-    test "Should fail orchestrating the reservation when reserving the table fails" {
-      let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
-      let reserveFails : Table.Reserve = fun _ _ -> Error NotAvailableTimeSlot
-      let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveFails
+        Assert.Equal(result, Error TableNotFound)
+        Mock.Verify(<@ tableRepositoryMock.Save table @>, never)
+      }
 
-      let result = reserveTable reservationRequest
+      test "Should fail orchestrating the reservation when reserving the table fails" {
+        let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
+        let reserveFails : Table.Reserve = fun _ _ -> Error NotAvailableTimeSlot
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveFails
 
-      Assert.Equal(result, Error NotAvailableTimeSlot)
-      Mock.Verify(<@ tableRepositoryMock.Save table @>, never)
-    }
+        let result = reserveTable reservationRequest
+
+        Assert.Equal(result, Error NotAvailableTimeSlot)
+        Mock.Verify(<@ tableRepositoryMock.Save table @>, never)
+      }
+    ]
+  
+    testList "Reserve table application service" [
+
+      test "Should orchestrate the finding of available tables of a restaurant for a given date" {
+        let today = DateOnly(2022, 11, 10)
+        let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
+        let schedule = (Map.add (TimeSlot("20:00")) None Map.empty) |> Map.add (TimeSlot("21:00")) (Some reservation)
+        let table = tableBuilder |> dailySchedule schedule |> date today |> buildTable
+        let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindAllBy table.RestaurantId today @>).Returns([table]).Create()
+        let findAvailableTables: InputPorts.FindAvailableTables = Services.findAvailableTables tableRepositoryMock Table.filterAvailable
+
+        let result = findAvailableTables { RestaurantId = table.RestaurantId.Value; Date = today }
+
+        let expectedResult: InputPorts.FindAvailableTableResponse = { TableId = table.TableId.Value; Capacity= table.Capacity; AvailableTimeSlots = ["20:00"] }
+        Assert.Equal<InputPorts.FindAvailableTableResponse list>(result, [expectedResult])
+      }
+    ]
   ]

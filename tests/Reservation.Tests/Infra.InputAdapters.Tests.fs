@@ -9,7 +9,7 @@ open Reservation.Domain.Model.InputPorts
 open Reservation.Domain.Model
 open Expecto
 
-let private findAvailableTables: FindAvailableTables = fun _ -> Ok []
+let private findAvailableTables: FindAvailableTables = fun _ -> []
 
 let private tableId = Guid.NewGuid() 
 
@@ -67,8 +67,8 @@ let tests =
       testTask "Should success finding available tables" {
         
         let reserveTable : ReserveTable = fun _ -> Ok { ReservationRef ="x342"; TableId = tableId }
-        let availableTable = { TableId= Guid.NewGuid(); AvailableTimeSlots= [{TimeSlot= "21:00"; Capacity= 4}]}
-        let findAvailableTables: FindAvailableTables = fun _ -> Ok [availableTable]
+        let availableTable = { TableId= Guid.NewGuid(); Capacity= 4; AvailableTimeSlots= ["21:00"]}
+        let findAvailableTables: FindAvailableTables = fun _ -> [availableTable]
         let restaurantId = Guid.NewGuid()
         let date = "2022-12-10"
         use server = createTestServer (Http.reservationRoutes reserveTable findAvailableTables)
@@ -78,7 +78,7 @@ let tests =
 
         let! content = response |> isStatus HttpStatusCode.OK |> readText
         content 
-            |> isJson $"""[{{ "tableId": "{availableTable.TableId}", "availableTimeSlots": [ {{ "timeSlot": "21:00", "capacity": 4 }} ] }}]""" 
+            |> isJson $"""[{{ "tableId": "{availableTable.TableId}", "capacity": 4, "availableTimeSlots": ["21:00"] }}]""" 
             |> ignore
       }
     ]

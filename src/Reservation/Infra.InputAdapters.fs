@@ -41,8 +41,7 @@ module Http =
     fun (next : HttpFunc) (ctx : HttpContext) ->
       let queryParams = Result.map2 (fun r d -> (r,d)) (ctx.GetQueryStringValue "restaurant-id") (ctx.GetQueryStringValue "date")
       match queryParams with
-                | Ok (r,d) -> findAvailableTables { RestaurantId = new Guid(r); Date = dateOnlyFrom d }
-                              |> Result.fold (fun res -> Successful.OK res next ctx) (fun error -> asErrorResponse error next ctx)
+                | Ok (r,d) -> findAvailableTables { RestaurantId = new Guid(r); Date = dateOnlyFrom d } |> (fun res -> Successful.OK res next ctx)
                 | Error _ -> RequestErrors.BAD_REQUEST "" next ctx
 
   let reservationRoutes reserveTable findAvailableTables = 

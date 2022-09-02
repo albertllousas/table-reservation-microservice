@@ -12,12 +12,12 @@ open Reservation.Domain.Model.OutputPorts
 //         tables |> tableRepository.Save
 //         tables |> TableCreatedEvent.from |> publishEvent
 //     }
-    
 
-// let findAvailableTables (tableRepository: TableRepository) req = 
-    // let! tables = tableRepository.FindBy req.restaurantId req.date 
-    // let availableTables = Table.filterAvailableFor req.Time tables // List.Filter (fun table -> Table.available req.Time table)
-    // return availableTables     
+let findAvailableTables (tableRepository: TableRepository) (filterAvailable: Table.FilterAvailable): FindAvailableTables = 
+  fun (req: FindAvailableTablesRequest) -> 
+    tableRepository.FindAllBy (RestaurantId(req.RestaurantId)) req.Date 
+      |> filterAvailable req.Date
+      |> List.map (fun table -> FindAvailableTableResponse.from table)   
 
 let reserveTable (tableRepository: TableRepository) (idGenerator: IdGenerator) (reserve: Table.Reserve): ReserveTable = 
   fun (req: ReserveTableRequest) -> 

@@ -2,6 +2,7 @@ module Reservation.Domain.ModelTests
 
 open Reservation.Domain.Model
 open System
+open Xunit
 open Expecto
 open Reservation.Tests.Fixtures
 open Reservation.Tests.Fixtures.Builders.TableBuilder
@@ -61,6 +62,18 @@ let tests =
         let result = Table.reserve req table
 
         Assert.IsError result TableCapacityDoesNotFit
+      }
+
+      test "Should filter tables by date with available slots" {
+        let today = DateOnly(2022, 11, 10)
+        let reservation = { ReservationRef= ReservationRef("x456t"); Persons=3; CustomerId= CustomerId(Guid.NewGuid()); TimeSlot = TimeSlot("21:00") }
+        let schedule = (Map.add (TimeSlot("20:00")) None Map.empty) |> Map.add (TimeSlot("21:00")) (Some reservation)
+        let tableWithAvailableSlot = tableBuilder |> dailySchedule schedule |> date today |> buildTable
+        let tableWithoutAvailableSlot = tableBuilder |> date today |> buildTable
+
+        let result = Table.filterAvailable today [tableWithAvailableSlot; tableWithoutAvailableSlot]
+
+        Assert.Equal<Table list>(result, [tableWithAvailableSlot])
       }
     ]
 

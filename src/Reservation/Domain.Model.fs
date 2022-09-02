@@ -68,6 +68,15 @@ module Table =
       let newTable =  { table with DailySchedule = Map.add validTimeSlot (Some reservation) table.DailySchedule }
       return (reservation.ReservationRef, newTable)
     } 
+  
+  let availableSlots (t:Table) = Map.toList t.DailySchedule 
+                                  |> List.filter (fun (k,v) -> Option.isNone v)
+                                  |> List.map (fun (k,v) -> k) 
+
+  type FilterAvailable = DateOnly -> Table list -> Table list
+
+  let filterAvailable : FilterAvailable = 
+    fun date tables -> List.filter (fun t -> t.Date.CompareTo(date) = 0 && ((Map.toList t.DailySchedule |> List.filter (fun (k,v) -> Option.isSome v)).Length > 0 )) tables
 
 module InputPorts =
 
@@ -79,10 +88,13 @@ module InputPorts =
 
   type FindAvailableTablesRequest = { RestaurantId : Guid; Date : DateOnly; }
 
-  type FindAvailableTableResponse = { TableId : Guid; AvailableTimeSlots : AvailableTable list } 
-  and AvailableTable = { TimeSlot: string; Capacity: int }
+  type FindAvailableTableResponse = { TableId : Guid; Capacity: int; AvailableTimeSlots : String list } 
 
-  type FindAvailableTables = (FindAvailableTablesRequest) -> Result<FindAvailableTableResponse list, DomainError>
+  module FindAvailableTableResponse =
+
+    let from (t:Table) = { TableId = t.TableId.Value; Capacity = t.Capacity; AvailableTimeSlots = Table.availableSlots t |> List.map (fun ts -> ts.Value) }
+
+  type FindAvailableTables = (FindAvailableTablesRequest) -> FindAvailableTableResponse list
 
 module OutputPorts = 
 

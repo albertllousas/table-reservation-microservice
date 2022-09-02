@@ -24,7 +24,7 @@ module Dependencies =
 
   let reserveTableService: ReserveTable = reserveTable tableRepository idGenerator Table.reserve
 
-  let findAvailableTables: FindAvailableTables = fun _ -> Ok []
+  let findAvailableTables: FindAvailableTables = fun _ -> []
 
   let reservationRoutes = Http.reservationRoutes reserveTableService findAvailableTables
 
