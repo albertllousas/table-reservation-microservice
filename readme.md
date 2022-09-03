@@ -26,8 +26,8 @@ The system should **let customers** to reserve a table in a restaurant:
 - The customer should be able to see the available tables in a restaurant for a given date.
 - The customer will choose an available timeslot to make a reservation
 - Number of people should fit in the table
-- If the reservation succeed, the customer will get a reservation code/ref
-- The solution shoudl cover only the Back-end part, no UI
+- If the reservation is successful, the customer will get a reservation code/ref
+- The solution should cover only the Back-end part, no UI at all
 - The communication protocol will be REST
 - We will need to inform other systems when a reservation is done
 - Custom searching, restaurants management or other concerns would be handled by other bounded contexts, this one is about reservations.
