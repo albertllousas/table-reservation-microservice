@@ -36,6 +36,15 @@ let postRequest path body =
     }
     resp.Result
 
+let getRequest path =
+    let resp = task {
+        use server = new TestServer(BootstrapGiraffe.createHost(WebHostBuilder().UseContentRoot(Directory.GetCurrentDirectory())))
+        use client = server.CreateClient()
+        let! response = get client path
+        return response
+    }
+    resp.Result
+
 let givenAnExistentTable schedule = 
   let date = DateTime.Now    
   let restaurantId = Guid.NewGuid() |> RestaurantId
@@ -49,20 +58,35 @@ let acceptanceTests =
 
   testSequencedGroup "docker" <| testList "use cases" [
 
+    test "Should find available tables in a restaurant for a given date" {
+      setup(
+        fun client ->    
+          let schedule = (Map.add (TimeSlot("21:00")) (None) Map.empty)
+          let table = givenAnExistentTable schedule
+          let dateStr = table.Date.ToString("yyyy-MM-dd")
+
+          let response = getRequest $"/tables/available?restaurant-id={table.RestaurantId.Value}&date={dateStr}"
+          // let content = response.Content.ReadAsStringAsync().Result
+          // Console.WriteLine(content)
+          
+          Assert.Equal(response.StatusCode, HttpStatusCode.OK)
+        )
+      }     
+
     test "Should reserve a table in a restaurant" {
       setup(
         fun client ->    
-            let schedule = (Map.add (TimeSlot("21:00")) (None) Map.empty)
-            let table = givenAnExistentTable schedule
-            let dateStr = table.Date.ToString("yyyy-MM-dd")
-            let json = $"""{{"date":"{dateStr}", "persons": {table.Capacity}, "customerId": "{Guid.NewGuid()}", "timeSlot": "21:00" }}"""
+          let schedule = (Map.add (TimeSlot("21:00")) (None) Map.empty)
+          let table = givenAnExistentTable schedule
+          let dateStr = table.Date.ToString("yyyy-MM-dd")
+          let json = $"""{{"date":"{dateStr}", "persons": {table.Capacity}, "customerId": "{Guid.NewGuid()}", "timeSlot": "21:00" }}"""
 
-            let response = postRequest $"/tables/{table.TableId.Value}/reservations" json
-            // let content = response.Content.ReadAsStringAsync().Result
-            // Console.WriteLine(content)
-            
-            Assert.Equal(response.StatusCode, HttpStatusCode.Created)
+          let response = postRequest $"/tables/{table.TableId.Value}/reservations" json
+          // let content = response.Content.ReadAsStringAsync().Result
+          // Console.WriteLine(content)
+          
+          Assert.Equal(response.StatusCode, HttpStatusCode.Created)
         )
-      }    
-    ]
+      }  
+  ]
     

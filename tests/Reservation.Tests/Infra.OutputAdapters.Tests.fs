@@ -68,8 +68,21 @@ let tableRepositoryTests setup = [
 
           Assert.Equal<Table list>(result , [t1; t3])
         )
-      } 
+      }
+      
+    test "Should not find tables of a restaurant by date when there are any" {
+      setup(
+        fun _ ->   
+          let id = Guid.NewGuid()
+          let d = DateOnly(2022, 1, 1) 
+          let repo: TableRepository = new PostgresqlTableRepository(DB.connectionString)
 
+          let result = repo.FindAllBy (id |> RestaurantId) d
+
+          Assert.Equal<Table list>(result , [])
+        )
+      } 
+  
     test "Should save a table" {
       setup(
         fun _ ->         
