@@ -71,6 +71,7 @@ let acceptanceTests =
           
           Assert.Equal(response.StatusCode, HttpStatusCode.OK)
         )
+      Async.Sleep(3000) |> Async.RunSynchronously
       }     
 
     test "Should reserve a table in a restaurant" {
