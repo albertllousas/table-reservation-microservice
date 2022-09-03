@@ -11,12 +11,25 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
 open System.Net
+open System
+open System.IO
+open Microsoft.Extensions.Configuration 
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 
+module Config =
+
+  let config =
+    (new ConfigurationBuilder()) 
+                    .SetBasePath(Directory.GetCurrentDirectory()) 
+                    .AddJsonFile("appsettings.json", true, true) 
+                    .AddEnvironmentVariables()
+                    .Build()
+
 module Dependencies = 
 
-  let connectionString = "Host=localhost;Database=restaurant;Username=restaurant;Password=restaurant"
+  // https://www.npgsql.org/doc/connection-string-parameters.html
+  let connectionString = Config.config.["ConnectionString"]
 
   let tableRepository: TableRepository = new DB.PostgresqlTableRepository(connectionString) 
 
@@ -24,7 +37,7 @@ module Dependencies =
 
   let reserveTableService: ReserveTable = reserveTable tableRepository idGenerator Table.reserve
 
-  let findAvailableTables: FindAvailableTables = fun _ -> []
+  let findAvailableTables: FindAvailableTables = findAvailableTables tableRepository Table.filterAvailable
 
   let reservationRoutes = Http.reservationRoutes reserveTableService findAvailableTables
 

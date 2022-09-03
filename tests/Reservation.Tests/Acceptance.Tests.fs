@@ -6,7 +6,6 @@ open System.Net
 open Expecto
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
-open Giraffe
 open Reservation.Domain.Model
 open Reservation.Infra.Config
 open Reservation.Infra.OutputAdapters.DB
@@ -18,11 +17,9 @@ open Xunit
 open Giraffe
 open Microsoft.AspNetCore.TestHost
 open Microsoft.AspNetCore.Builder
-open System
 open System.Net
 open System.Net.Http
 open System.IO
-open System
 open System.Text.Json
 
 let setup fn =  
