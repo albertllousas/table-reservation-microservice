@@ -5,6 +5,7 @@ open System
 open Reservation.Domain.Model
 open Npgsql.FSharp
 open Newtonsoft.Json
+open System.Transactions
 
 module DB =
 
@@ -61,6 +62,13 @@ module DB =
             ]
           |> Sql.executeRow (fun row -> row.int64 "aggregate_version")
           |> (fun version -> if version <> (table.Version + 1L) then raise ConcurrencyError else () ) 
+
+  let withinAmbientTransaction : WithinTransation<'T> = 
+    fun (code: unit -> 'T) -> 
+      use tran = new TransactionScope()
+      let result = code()
+      tran.Complete()
+      result
 
 module Ids = 
 

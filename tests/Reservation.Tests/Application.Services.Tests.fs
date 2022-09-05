@@ -22,6 +22,8 @@ let private idGenerator = {
 
 let reserveSuccesfully : Table.Reserve = fun _ _ -> Ok (ReservationRef("hash"), table)
 
+let tx : OutputPorts.WithinTransation<'T> = fun (code: unit -> 'T) -> code()
+
 [<Tests>]
 let tests =
 
@@ -31,7 +33,7 @@ let tests =
 
       test "Should orchestrate the reservation of a table" {
         let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
-        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock tx idGenerator reserveSuccesfully
 
         let result = reserveTable reservationRequest
 
@@ -42,7 +44,7 @@ let tests =
 
       test "Should fail orchestrating the reservation when table is not found" {
         let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Error TableNotFound).Create()
-        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveSuccesfully
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock tx idGenerator reserveSuccesfully
 
         let result = reserveTable reservationRequest
 
@@ -53,7 +55,7 @@ let tests =
       test "Should fail orchestrating the reservation when reserving the table fails" {
         let tableRepositoryMock= Mock<OutputPorts.TableRepository>().Setup(fun mock -> <@ mock.FindBy table.TableId @>).Returns(Ok table).Create()
         let reserveFails : Table.Reserve = fun _ _ -> Error NotAvailableTimeSlot
-        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock idGenerator reserveFails
+        let reserveTable: InputPorts.ReserveTable = Services.reserveTable tableRepositoryMock tx idGenerator reserveFails
 
         let result = reserveTable reservationRequest
 

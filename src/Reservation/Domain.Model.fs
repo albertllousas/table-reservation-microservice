@@ -107,6 +107,8 @@ module OutputPorts =
     abstract member Guid: unit -> Guid
     abstract member RandomString: size : int -> string  
 
+  type WithinTransation<'T> = (unit -> 'T ) -> 'T
+
 module Result =
   open FSharpPlus
 
