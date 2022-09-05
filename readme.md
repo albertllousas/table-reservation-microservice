@@ -4,7 +4,7 @@
 
 !!IN PROGRESS!!
 
-Missing:  tx management, outbox pattern, domain events with kafka
+Missing:  outbox pattern, domain events with kafka
 
 ## Description
 
