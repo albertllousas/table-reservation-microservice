@@ -78,6 +78,18 @@ module Table =
   let filterAvailable : FilterAvailable = 
     fun date tables -> List.filter (fun t -> t.Date.CompareTo(date) = 0 && ((Map.toList t.DailySchedule |> List.filter (fun (k,v) -> Option.isSome v)).Length > 0 )) tables
 
+type DomainEvent = TableReservedEvent of table : TableId * restaurant : RestaurantId * reservation : Reservation
+
+module TableReservedEvent =
+
+  let from table ref = 
+    let reservation = Map.toList table.DailySchedule 
+                      |> List.map (fun (k,v) -> v) 
+                      |> List.filter (fun v -> Option.isSome v) 
+                      |> List.map (fun v -> Option.get v)
+                      |> List.find (fun r -> r.ReservationRef = ref)
+    TableReservedEvent(table.TableId, table.RestaurantId, reservation)
+
 module InputPorts =
 
   type ReserveTableRequest = { TableId : Guid; Date : DateOnly; Persons: int; CustomerId: Guid; TimeSlot: string }
@@ -108,6 +120,8 @@ module OutputPorts =
     abstract member RandomString: size : int -> string  
 
   type WithinTransation<'T> = (unit -> 'T ) -> 'T
+
+  type PublishEvent = DomainEvent -> unit
 
 module Result =
   open FSharpPlus

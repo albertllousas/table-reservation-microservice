@@ -19,14 +19,19 @@ let findAvailableTables (tableRepository: TableRepository) (filterAvailable: Tab
       |> filterAvailable req.Date
       |> List.map (fun table -> FindAvailableTableResponse.from table)   
 
-let reserveTable (tableRepository: TableRepository)  (tx: WithinTransation<_>) (idGenerator: IdGenerator) (reserve: Table.Reserve) (req: ReserveTableRequest) = 
+let reserveTable (tableRepository: TableRepository)  
+                 (publishEvent: PublishEvent)
+                 (tx: WithinTransation<_>) 
+                 (idGenerator: IdGenerator) 
+                 (reserve: Table.Reserve) 
+                 (req: ReserveTableRequest) = 
   tx (fun () -> 
     result {
       let! table = tableRepository.FindBy <| TableId(req.TableId)
       let reservationRequest = ReservationRequest(req.Persons, req.CustomerId, idGenerator.RandomString 5, req.TimeSlot)
       let! (ref, reservedTable) = reserve reservationRequest table 
       tableRepository.Save reservedTable
-      // publishEvent TableReservedEvent.from reservedTable ref
+      publishEvent (TableReservedEvent.from reservedTable ref)
       return { TableId = table.TableId.Value; ReservationRef = ref.Value }
     }
   )

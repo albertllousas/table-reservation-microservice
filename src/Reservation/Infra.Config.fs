@@ -35,7 +35,7 @@ module Dependencies =
 
   let idGenerator: IdGenerator = new Ids.RandomIdGenerator()
 
-  let reserveTableService: ReserveTable = reserveTable tableRepository DB.withinAmbientTransaction idGenerator Table.reserve
+  let reserveTableService: ReserveTable = reserveTable tableRepository (fun _ -> ()) DB.withinAmbientTransaction idGenerator Table.reserve
 
   let findAvailableTables: FindAvailableTables = findAvailableTables tableRepository Table.filterAvailable
 
