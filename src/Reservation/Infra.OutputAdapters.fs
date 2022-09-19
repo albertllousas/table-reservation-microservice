@@ -6,6 +6,7 @@ open Reservation.Domain.Model
 open Npgsql.FSharp
 open Newtonsoft.Json
 open System.Transactions
+open Microsoft.Extensions.Logging
 
 module DB =
 
@@ -69,6 +70,17 @@ module DB =
       let result = code()
       tran.Complete()
       result
+
+module PubSub =
+
+  let publishEvent (handlers: List<DomainEvent -> unit>) : PublishEvent = 
+    fun event -> handlers |> List.iter (fun handle -> handle event) 
+
+  let handleLogging (logger: ILogger) event = 
+    fun event -> logger.LogInformation($"domain-event: {event}")
+
+  // let handleOutbox (outboxRepository: OutboxRepository) event = 
+  //   fun event -> () // TODO
 
 module Ids = 
 

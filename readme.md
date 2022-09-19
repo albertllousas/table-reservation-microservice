@@ -1,11 +1,5 @@
 # Table reservation microservice with FSharp
 
-## In progress
-
-!!IN PROGRESS!!
-
-Missing:  outbox pattern, domain events with kafka
-
 ## Description
 
 This project is an exercise to practice and see how it fits Domain-Driven Design, Hexagonal Architecture, Functional programming and TDD in F# and dotnet ecosystem.
@@ -79,3 +73,8 @@ To ensure the integrity annd consistency of the different invariants, the aggreg
 </p>
 
 [Aggregate code](./src/Reservation/Domain.Model.fs#L39)
+
+## In progress
+
+- Add outbox pattern
+- Add kafka to publish events
